@@ -40,9 +40,12 @@ void on_map_request(XEvent* e){
     // currently just forward the request
 
     XMapRequestEvent* event = &e->xmaprequest;
+
     XMapWindow(_display, event->window);
+
     XSync(_display, FALSE);
 }
+
 void on_key_press(XEvent* e){
     XKeyEvent* event = &e->xkey;
 
@@ -118,7 +121,8 @@ int start(){
     XSelectInput(   _display, 
                     _root_window,
                     SubstructureRedirectMask | SubstructureNotifyMask |
-                    ButtonPressMask | PointerMotionMask |
+                    ButtonPressMask | ButtonRelease | PointerMotionMask |
+                    KeyPressMask | KeyReleaseMask |
                     EnterWindowMask | LeaveWindowMask |
                     StructureNotifyMask | PropertyChangeMask);
 
