@@ -6,6 +6,7 @@
 #include <unistd.h>     
 
 #include "common.h"
+#include <errno.h>
 
 
 // global declerations
@@ -17,7 +18,7 @@ void on_default(XEvent* e){}
 void on_configure_request(XEvent* e){
     // currently just forward the request
 
-    XConfigureRequestEvent* event = (XConfigureRequestEvent*)e;
+    XConfigureRequestEvent* event = &e->xconfigurerequest;
     XWindowChanges changes;
 
     changes.x = event->x;
@@ -32,29 +33,34 @@ void on_configure_request(XEvent* e){
                     event->window, 
                     event->value_mask, 
                     &changes);
+    XSync(_display, FALSE);
 }
 
 void on_map_request(XEvent* e){
     // currently just forward the request
 
-    XMapRequestEvent* event = (XMapRequestEvent*) e;
+    XMapRequestEvent* event = &e->xmaprequest;
     XMapWindow(_display, event->window);
+    XSync(_display, FALSE);
+}
+void on_key_press(XEvent* e){
+    XKeyEvent* event = &e->xkey;
+
+    LOG("Key pressed: %d\n", event->keycode);
 }
 
 static void (*event_handlers[LASTEvent]) (XEvent *) = {
 	[ButtonPress]       = on_default,
 	[ClientMessage]     = on_default,
-	// [ConfigureRequest]  = on_configure_request,
-	[ConfigureRequest]  = on_default,
+	[ConfigureRequest]  = on_configure_request,
 	[ConfigureNotify]   = on_default,
 	[DestroyNotify]     = on_default,
 	[EnterNotify]       = on_default,
 	[Expose]            = on_default,
 	[FocusIn]           = on_default,
-	[KeyPress]          = on_default,
+	[KeyPress]          = on_key_press,
 	[MappingNotify]     = on_default,
-	// [MapRequest]        = on_map_request,
-	[MapRequest]        = on_default,
+	[MapRequest]        = on_map_request,
 	[MotionNotify]      = on_default,
 	[PropertyNotify]    = on_default,
 	[UnmapNotify]       = on_default
@@ -85,7 +91,8 @@ void detect_other_wm(){
 }
 
 int spawn(char** argv){
-    if (fork() == 0){   // i am the child
+    int ret = fork();
+    if (ret == 0){   // i am the child
         // clean xorg-server connection on child
         if (_display){
             close(((_XPrivDisplay)_display)->fd);
@@ -94,6 +101,7 @@ int spawn(char** argv){
         execvp(argv[0], argv);
         exit(0);
     }
+
     return 0;
 }
 
@@ -114,6 +122,7 @@ int start(){
                     EnterWindowMask | LeaveWindowMask |
                     StructureNotifyMask | PropertyChangeMask);
 
+    XSync(_display, FALSE);
     return 0;
 }
 
@@ -129,17 +138,21 @@ void main_event_loop(){
     char* termcmd[] = {"st", NULL};
     spawn(termcmd);
 
+    int i = 0;
     while(TRUE){
+        i++;
         // fetch next event
         XNextEvent(_display, &e);
 
-        LOG("%d", e.type);
+        LOG("Event type: %d\n", e.type);
 
         // execute right handler.
 
         if (event_handlers[e.type]){
             event_handlers[e.type](&e);
         }
+
+        if (i == 10) return;
     }
 }
 
