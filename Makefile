@@ -9,7 +9,7 @@ CC = cc
 LDFLAGS = ${LIBS}
 CFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -Os ${INCS}
 
-SRC = wm.c common.c
+SRC = wm.c common.c keys.c
 
 OBJ = ${SRC:.c=.o}
 

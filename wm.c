@@ -4,9 +4,10 @@
 #include <stdio.h>      
 #include <stdlib.h>     // for exit()
 #include <unistd.h>     
+#include <errno.h>
 
 #include "common.h"
-#include <errno.h>
+#include "keys.h"
 
 
 // global declerations
@@ -108,7 +109,16 @@ int spawn(char** argv){
     return 0;
 }
 
+int register_key_events(){
+    XUngrabKey(_display, AnyKey, AnyModifier, _root_window);
+
+    // TODO: grab only keys needed.
+
+    return 0;
+}
+
 int start(){
+    int ret;
     _display = XOpenDisplay(NULL); // create connection
     ASSERT(_display, "failed to open display\n");
 
@@ -120,11 +130,10 @@ int start(){
 
     XSelectInput(   _display, 
                     _root_window,
-                    SubstructureRedirectMask | SubstructureNotifyMask |
-                    ButtonPressMask | ButtonRelease | PointerMotionMask |
-                    KeyPressMask | KeyReleaseMask |
-                    EnterWindowMask | LeaveWindowMask |
-                    StructureNotifyMask | PropertyChangeMask);
+                    SubstructureRedirectMask | SubstructureNotifyMask);
+
+    ret = register_key_events();
+    ASSERT(ret, "failed to register to key events\n");
 
     XSync(_display, FALSE);
     return 0;
