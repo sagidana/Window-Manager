@@ -4,6 +4,7 @@
 #include "common.h"
 
 typedef struct{
+    List list;
     int x;
     int y;
     unsigned int width;

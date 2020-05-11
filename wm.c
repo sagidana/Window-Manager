@@ -5,8 +5,6 @@
 #include <unistd.h>     
 #include <errno.h>
 
-#include "common.h"
-
 
 // -----------------------------------------------------
 // helpers functions
@@ -49,17 +47,9 @@ void on_configure_request(XEvent* e){
 
 void on_map_request(XEvent* e){
     // currently just forward the request
-
     XMapRequestEvent* event = &e->xmaprequest;
 
     XMapWindow(wm.display, event->window);
-
-    XSetInputFocus( wm.display, 
-                    event->window, 
-                    RevertToPointerRoot, 
-                    CurrentTime);
-
-    XSync(wm.display, FALSE);
 }
 
 void on_key_press(XEvent* e){

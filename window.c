@@ -10,6 +10,8 @@ WMWindow* window_create(Display* display, Window x_window){
     ASSERT(new != 0, "failed with malloc\n");
 
     new->x_window = x_window;
+    new->list.next = NULL;
+    new->list.prev = NULL;
 
     ret = window_update(display, new);
     ASSERT(ret == 0, "failed to create a window.\n");

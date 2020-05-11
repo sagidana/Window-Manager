@@ -4,7 +4,9 @@
 #include <X11/Xlib.h> 
 #include <X11/keysym.h> 
 
+#include "common.h"
 #include "workspace.h"
+#include "window.h"
 
 
 typedef struct{
