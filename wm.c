@@ -1,19 +1,35 @@
 #include "wm.h"
 
-#include <X11/Xlib.h> 
 #include <stdio.h>      
 #include <stdlib.h>     // for exit()
 #include <unistd.h>     
 #include <errno.h>
 
 #include "common.h"
-#include "keys.h"
 
 
+// -----------------------------------------------------
 // global declerations
-static Display* _display = NULL;
-static Window _root_window;
+// -----------------------------------------------------
+static Display* wm_display;
+static Window wm_root_window;
 
+// -----------------------------------------------------
+// helpers functions
+// -----------------------------------------------------
+Key* get_key_by_code(Display* display, int key_code){
+    int i;
+    for (i = 0; i < LENGTH(wm_keys); i++){
+        if (key_code == XKeysymToKeycode(display, wm_keys[i].keysym)){
+            return &wm_keys[i];
+        }
+    }
+    return NULL;
+}
+
+// -----------------------------------------------------
+// events callbacks
+// -----------------------------------------------------
 void on_default(XEvent* e){}
 
 void on_configure_request(XEvent* e){
@@ -30,11 +46,11 @@ void on_configure_request(XEvent* e){
     changes.sibling = event->above;
     changes.stack_mode = event->detail;
 
-    XConfigureWindow(_display, 
+    XConfigureWindow(wm_display, 
                     event->window, 
                     event->value_mask, 
                     &changes);
-    XSync(_display, FALSE);
+    XSync(wm_display, FALSE);
 }
 
 void on_map_request(XEvent* e){
@@ -42,15 +58,28 @@ void on_map_request(XEvent* e){
 
     XMapRequestEvent* event = &e->xmaprequest;
 
-    XMapWindow(_display, event->window);
+    XMapWindow(wm_display, event->window);
 
-    XSync(_display, FALSE);
+    XSetInputFocus( wm_display, 
+                    event->window, 
+                    RevertToPointerRoot, 
+                    CurrentTime);
+
+    XSync(wm_display, FALSE);
 }
 
 void on_key_press(XEvent* e){
     XKeyEvent* event = &e->xkey;
+    Key* current_key = get_key_by_code(wm_display, event->keycode);
+    if (current_key == NULL){
+        return;
+    }
 
     LOG("Key pressed: %d\n", event->keycode);
+
+    if (current_key->func){
+        current_key->func(&current_key->args);
+    }
 }
 
 static void (*event_handlers[LASTEvent]) (XEvent *) = {
@@ -87,42 +116,42 @@ void detect_other_wm(){
     // check if another 
     XSetErrorHandler(x_on_wm_detected);
 
-    XSelectInput(   _display, 
-                    _root_window,
+    XSelectInput(   wm_display, 
+                    wm_root_window,
                     SubstructureRedirectMask | SubstructureNotifyMask);
 
-    XSync(_display, FALSE);
+    XSync(wm_display, FALSE);
 }
 
-int spawn(char** argv){
+static void spawn(Args* args){
+    char** argv = (char**)args->ptr;
+
     int ret = fork();
     if (ret == 0){   // i am the child
         // clean xorg-server connection on child
-        if (_display){
-            close(((_XPrivDisplay)_display)->fd);
+        if (wm_display){
+            close(((_XPrivDisplay)wm_display)->fd);
         }
         setsid();
         execvp(argv[0], argv);
         exit(0);
     }
-
-    return 0;
 }
 
 int register_key_events(){
     int i;
     int ret;
-    XUngrabKey(_display, AnyKey, AnyModifier, _root_window);
+    XUngrabKey(wm_display, AnyKey, AnyModifier, wm_root_window);
 
-    for (i = 0; i < LENGTH(keys); i++){
+    for (i = 0; i < LENGTH(wm_keys); i++){
         // accept events only from the key presses 
         // that of interest to us by the keys array
         // which should be defined by the user.
 
-        ret = XGrabKey( _display,
-                        XKeysymToKeycode(_display, keys[i].keysym),
-                        keys[i].mod, 
-                        _root_window,
+        ret = XGrabKey( wm_display,
+                        XKeysymToKeycode(wm_display, wm_keys[i].keysym),
+                        wm_keys[i].mod, 
+                        wm_root_window,
                         TRUE,
                         GrabModeAsync,
                         GrabModeAsync);
@@ -133,45 +162,46 @@ int register_key_events(){
     return 0;
 }
 
+
 int start(){
     int ret;
-    _display = XOpenDisplay(NULL); // create connection
-    ASSERT(_display, "failed to open display\n");
+    wm_display = XOpenDisplay(NULL); // create connection
+    ASSERT(wm_display, "failed to open display\n");
 
-    _root_window = DefaultRootWindow(_display);
+    wm_root_window = DefaultRootWindow(wm_display);
 
     detect_other_wm();
 
     XSetErrorHandler(x_on_error);
 
-    XSelectInput(   _display, 
-                    _root_window,
+    XSelectInput(   wm_display, 
+                    wm_root_window,
                     SubstructureRedirectMask | SubstructureNotifyMask);
 
     ret = register_key_events();
     ASSERT(ret == 0, "failed to register to key events\n");
 
-    XSync(_display, FALSE);
+    XSync(wm_display, FALSE);
     return 0;
 }
 
 int end(){
-    XCloseDisplay(_display);
-    _display = NULL;
+    XCloseDisplay(wm_display);
+    wm_display = NULL;
     return 0;
 }
 
 void main_event_loop(){
     XEvent e;
 
-    char* termcmd[] = {"st", NULL};
-    spawn(termcmd);
+    // char* termcmd[] = {"st", NULL};
+    // Args args = {.ptr = (void*)termcmd};
+    // spawn(&args);
 
     int i = 0;
     while(TRUE){
-        i++;
         // fetch next event
-        XNextEvent(_display, &e);
+        XNextEvent(wm_display, &e);
 
         LOG("Event type: %d\n", e.type);
 
@@ -181,7 +211,7 @@ void main_event_loop(){
             event_handlers[e.type](&e);
         }
 
-        if (i == 10) return;
+        if (i++ == 100) return;
     }
 }
 
