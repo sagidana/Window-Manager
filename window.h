@@ -2,9 +2,11 @@
 #define WINDOW_H
 
 #include "common.h"
+#include "list.h"
 
 typedef struct{
     List list;
+
     int x;
     int y;
     unsigned int width;
