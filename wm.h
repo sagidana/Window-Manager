@@ -4,6 +4,15 @@
 #include <X11/Xlib.h> 
 #include <X11/keysym.h> 
 
+
+typedef struct{
+    Display* display;
+    Window root_window;
+    int to_exit;
+}Manager;
+
+static Manager wm;
+
 typedef struct{
     void* ptr;
 }Args;
@@ -18,7 +27,8 @@ typedef struct{
 // ------------------------------------------------------------------
 // functions exported for key bindings
 // ------------------------------------------------------------------
-static void spawn(Args* args);
+void spawn(Args* args);
+void to_exit(Args* args);
 // ------------------------------------------------------------------
 
 // ------------------------------------------------------------------
@@ -31,7 +41,8 @@ static void spawn(Args* args);
 static const char* termcmd[] = {"st", NULL};
 
 static Key wm_keys[] = {
-    {MODKEY,    XK_Return,      spawn,      {.ptr = termcmd } }
+    {MODKEY,    XK_Return,      spawn,      {.ptr = termcmd } },
+    {MODKEY,    XK_E,           to_exit,       {.ptr = NULL } }
 };
 
 // ------------------------------------------------------------------
