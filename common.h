@@ -16,4 +16,6 @@ void wm_log(char* msg);
     wm_log(buff);                   \
 }while(0)
 
+#define LENGTH(x) (sizeof(x) / sizeof(x[0]))
+
 #endif

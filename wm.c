@@ -110,9 +110,25 @@ int spawn(char** argv){
 }
 
 int register_key_events(){
+    int i;
+    int ret;
     XUngrabKey(_display, AnyKey, AnyModifier, _root_window);
 
-    // TODO: grab only keys needed.
+    for (i = 0; i < LENGTH(keys); i++){
+        // accept events only from the key presses 
+        // that of interest to us by the keys array
+        // which should be defined by the user.
+
+        ret = XGrabKey( _display,
+                        XKeysymToKeycode(_display, keys[i].keysym),
+                        keys[i].mod, 
+                        _root_window,
+                        TRUE,
+                        GrabModeAsync,
+                        GrabModeAsync);
+
+        ASSERT(ret, "failed in XGrabKey()\n");
+    }
 
     return 0;
 }
@@ -133,7 +149,7 @@ int start(){
                     SubstructureRedirectMask | SubstructureNotifyMask);
 
     ret = register_key_events();
-    ASSERT(ret, "failed to register to key events\n");
+    ASSERT(ret == 0, "failed to register to key events\n");
 
     XSync(_display, FALSE);
     return 0;
