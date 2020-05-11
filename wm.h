@@ -4,11 +4,15 @@
 #include <X11/Xlib.h> 
 #include <X11/keysym.h> 
 
+#include "workspace.h"
+
 
 typedef struct{
     Display* display;
     Window root_window;
     int to_exit;
+
+    WMWorkspace workspaces[NUM_OF_WORKSPACES];
 }Manager;
 
 static Manager wm;

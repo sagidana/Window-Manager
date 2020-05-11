@@ -93,7 +93,6 @@ static void (*event_handlers[LASTEvent]) (XEvent *) = {
 	[UnmapNotify]       = on_default
 };
 
-
 int x_on_error(Display* display, XErrorEvent* e){
     // TODO:
 
@@ -158,8 +157,9 @@ int register_key_events(){
     }
 
     return 0;
+fail:
+    return -1;
 }
-
 
 int start(){
     int ret;
@@ -178,6 +178,9 @@ int start(){
 
     XSync(wm.display, FALSE);
     return 0;
+
+fail:
+    return -1;
 }
 
 int end(){

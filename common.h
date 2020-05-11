@@ -1,10 +1,14 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <X11/Xlib.h> 
+#include <stdlib.h>
+#include <stdio.h>
+
 #define FALSE (0)
 #define TRUE (!(FALSE))
 
-#define ASSERT(expr, msg) if(!expr) {printf(msg); return -1;}
+#define ASSERT(expr, ...) if(!expr) {printf(__VA_ARGS__); goto fail;}
 
 #define LOG_FILE_PATH "/home/s/wm.log"
 
