@@ -8,7 +8,6 @@
 #define FALSE (0)
 #define TRUE (!(FALSE))
 
-#define ASSERT(expr, ...) if(!expr) {printf(__VA_ARGS__); goto fail;}
 
 #define LOG_FILE_PATH "/home/s/wm.log"
 
@@ -19,6 +18,8 @@ void wm_log(char* msg);
     sprintf(buff, __VA_ARGS__);     \
     wm_log(buff);                   \
 }while(0)
+
+#define ASSERT(expr, ...) if(!expr) {LOG(__VA_ARGS__); goto fail;}
 
 #define LENGTH(x) (sizeof(x) / sizeof(x[0]))
 

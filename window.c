@@ -142,6 +142,7 @@ int window_hide(Display* display, WMWindow* window){
     ASSERT(ret == 0, "failed to hide window.\n");
     window->visible = 0;
 
+    LOG("hide window: %p\n", (void*)window);
     return 0;
 
 fail:
@@ -151,6 +152,7 @@ fail:
 int window_show(Display* display, WMWindow* window){
     int ret;
 
+
     ret = window_move(  display, 
                         window,
                         window->x,
@@ -158,6 +160,7 @@ int window_show(Display* display, WMWindow* window){
     ASSERT(ret == 0, "failed to show window.\n");
     window->visible = 1;
 
+    LOG("show window: %p\n", (void*)window);
     return 0;
 
 fail:

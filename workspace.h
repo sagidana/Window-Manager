@@ -18,6 +18,9 @@ int workspace_init( WMWorkspace* workspace,
                     unsigned int width, 
                     unsigned int height);
 
+int workspace_hide(Display* display, WMWorkspace* workspace);
+int workspace_show(Display* display, WMWorkspace* workspace);
+
 int workspace_add_window(WMWorkspace* workspace, WMWindow* window);
 int workspace_remove_window(WMWorkspace* workspace, WMWindow* window);
 

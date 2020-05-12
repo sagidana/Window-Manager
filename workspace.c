@@ -13,6 +13,50 @@ int workspace_init( WMWorkspace* workspace,
     return 0;
 }
 
+int workspace_hide(Display* display, WMWorkspace* workspace){
+    int ret;
+
+    List* curr = &workspace->windows_list;
+
+    while(curr->next){
+        curr = curr->next;
+        // the 'list' element inside the WMWindow struct
+        // is the first element, which means that its address
+        // point to the struct itself. this is why we can convert
+        // the List* to WMWindow*
+        WMWindow* curr_window = (WMWindow*) curr;
+
+        ret = window_hide(display, curr_window);
+        ASSERT(ret == 0, "failed to hide window\n");
+    }
+
+    return 0;
+fail:
+    return -1;
+}
+
+int workspace_show(Display* display, WMWorkspace* workspace){
+    int ret;
+
+    List* curr = &workspace->windows_list;
+
+    while(curr->next){
+        curr = curr->next;
+        // the 'list' element inside the WMWindow struct
+        // is the first element, which means that its address
+        // point to the struct itself. this is why we can convert
+        // the List* to WMWindow*
+        WMWindow* curr_window = (WMWindow*) curr;
+
+        ret = window_show(display, curr_window);
+        ASSERT(ret == 0, "failed to show window\n");
+    }
+
+    return 0;
+fail:
+    return -1;
+}
+
 int workspace_add_window(WMWorkspace* workspace, WMWindow* window){
     int ret;
 

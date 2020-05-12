@@ -184,6 +184,37 @@ void detect_other_wm(){
     XSync(wm.display, FALSE);
 }
 
+
+// -----------------------------------------------------
+// functions for the key bindings events
+// -----------------------------------------------------
+void switch_workspace(Args* args){
+    int ret;
+
+    if ((args->i < 0) || args->i >= NUM_OF_WORKSPACES){
+        ASSERT(FALSE, "failed to switch workspace i = %d\n", args->i);
+    }
+
+    // we already at the correct workspace
+    if (wm.current_workspace_index == args->i){
+        return;
+    }
+
+    ret = workspace_hide(wm.display, WORKSPACE);
+    ASSERT(ret == 0, "failed to hide workspace\n");
+
+    wm.current_workspace_index = args->i;
+
+    ret = workspace_show(wm.display, WORKSPACE);
+    ASSERT(ret == 0, "failed to show workspace\n");
+
+    // ret = window_focus(wm.display, WORKSPACE->focused_window);
+    // ASSERT(ret == 0, "failed to focus window.\n");
+
+fail:
+    return;
+}
+
 void spawn(Args* args){
     char** argv = (char**)args->ptr;
 
@@ -202,6 +233,7 @@ void to_exit(Args* args){
     // trigger wm to exit.
     wm.to_exit = 1; 
 }
+// -----------------------------------------------------
 
 int register_key_events(){
     int i;
@@ -252,7 +284,7 @@ int initialize_wm(){
                         &border_width,
                         &depth);
     ASSERT(ret, "failed to get screen geometry\n");
-    
+
     wm.current_workspace_index = 0;
     for (i = 0; i < NUM_OF_WORKSPACES; i++){
 

@@ -22,6 +22,7 @@ static Manager wm;
 
 typedef struct{
     void* ptr;
+    int i;
 }Args;
 
 typedef struct{
@@ -36,6 +37,7 @@ typedef struct{
 // ------------------------------------------------------------------
 void spawn(Args* args);
 void to_exit(Args* args);
+void switch_workspace(Args* args);
 // ------------------------------------------------------------------
 
 // ------------------------------------------------------------------
@@ -48,8 +50,18 @@ void to_exit(Args* args);
 static const char* termcmd[] = {"st", NULL};
 
 static Key wm_keys[] = {
-    {MODKEY,    XK_Return,      spawn,      {.ptr = termcmd } },
-    {MODKEY,    XK_E,           to_exit,       {.ptr = NULL } }
+    {MODKEY,    XK_Return,      spawn,                  {.ptr = termcmd, .i = -1} },
+    {MODKEY,    XK_E,           to_exit,                {.ptr = NULL, .i = -1 } },
+    {MODKEY,    XK_0,           switch_workspace,       {.ptr = NULL, .i = 0 } },
+    {MODKEY,    XK_1,           switch_workspace,       {.ptr = NULL, .i = 1 } },
+    {MODKEY,    XK_2,           switch_workspace,       {.ptr = NULL, .i = 2 } },
+    {MODKEY,    XK_3,           switch_workspace,       {.ptr = NULL, .i = 3 } },
+    {MODKEY,    XK_4,           switch_workspace,       {.ptr = NULL, .i = 4 } },
+    {MODKEY,    XK_5,           switch_workspace,       {.ptr = NULL, .i = 5 } },
+    {MODKEY,    XK_6,           switch_workspace,       {.ptr = NULL, .i = 6 } },
+    {MODKEY,    XK_7,           switch_workspace,       {.ptr = NULL, .i = 7 } },
+    {MODKEY,    XK_8,           switch_workspace,       {.ptr = NULL, .i = 8 } },
+    {MODKEY,    XK_9,           switch_workspace,       {.ptr = NULL, .i = 9 } }
 };
 
 // ------------------------------------------------------------------
