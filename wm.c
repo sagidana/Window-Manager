@@ -91,10 +91,6 @@ void on_map_request(XEvent* e){
     ret = workspace_add_window(WORKSPACE, window);
     ASSERT(ret == 0, "failed to add window to workspace.\n");
 
-    // rearrange the layout of the windows.
-    ret = workspace_arrange(WORKSPACE);
-    ASSERT(ret == 0, "failed to arrange the current workspace.\n");
-
 fail:
     return;
 }

@@ -48,9 +48,18 @@ void switch_workspace(Args* args);
 #define MODKEY Mod4Mask
 
 static const char* termcmd[] = {"st", NULL};
+static const char* dmenucmd[] = {   "dmenu_run", 
+                                    "-m", "0", 
+                                    "-fn", "monospace:size=10", 
+                                    "-nb", "#222222", 
+                                    "-nf", "#bbbbbb",
+                                    "-sb", "#005577",
+                                    "-sf", "#eeeeee",
+                                    NULL};
 
 static Key wm_keys[] = {
     {MODKEY,    XK_Return,      spawn,                  {.ptr = termcmd, .i = -1} },
+    {MODKEY,    XK_D,           spawn,                  {.ptr = dmenucmd, .i = -1} },
     {MODKEY,    XK_E,           to_exit,                {.ptr = NULL, .i = -1 } },
     {MODKEY,    XK_0,           switch_workspace,       {.ptr = NULL, .i = 0 } },
     {MODKEY,    XK_1,           switch_workspace,       {.ptr = NULL, .i = 1 } },

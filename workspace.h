@@ -28,6 +28,4 @@ WMWindow* workspace_get_window(WMWorkspace* workspace, Window x_window);
 
 int workspace_has_window(WMWorkspace* workspace, WMWindow* window);
 
-int workspace_arrange(WMWorkspace* workspace);
-
 #endif
