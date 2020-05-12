@@ -1,10 +1,14 @@
 #include "workspace.h"
 
-int workspace_init(WMWorkspace* workspace){
+int workspace_init( WMWorkspace* workspace, 
+                    unsigned int width, 
+                    unsigned int height){
 
     workspace->windows_list.next = NULL;
     workspace->windows_list.prev = NULL;
     workspace->focused_window = NULL;
+    workspace->height = height;
+    workspace->width = width;
 
     return 0;
 }
@@ -83,4 +87,23 @@ int workspace_has_window(WMWorkspace* workspace, WMWindow* window){
         }
     }
     return FALSE;
+}
+
+int workspace_arrange(WMWorkspace* workspace){
+    // int ret;
+
+    // List* curr = &workspace->windows_list;
+
+    // while(curr->next){
+        // curr = curr->next;
+        // // the 'list' element inside the WMWindow struct
+        // // is the first element, which means that its address
+        // // point to the struct itself. this is why we can convert
+        // // the List* to WMWindow*
+        // WMWindow* curr_window = (WMWindow*) curr;
+    // }
+
+    // return 0;
+// fail:
+    return -1;
 }

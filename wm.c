@@ -91,6 +91,10 @@ void on_map_request(XEvent* e){
     ret = workspace_add_window(WORKSPACE, window);
     ASSERT(ret == 0, "failed to add window to workspace.\n");
 
+    // rearrange the layout of the windows.
+    ret = workspace_arrange(WORKSPACE);
+    ASSERT(ret == 0, "failed to arrange the current workspace.\n");
+
 fail:
     return;
 }
@@ -230,10 +234,32 @@ int initialize_wm(){
     int i;
 
     wm.to_exit = 0;
+
+    // unused variables
+    Window returned_root;
+    int x, y;
+    unsigned int border_width;
+    unsigned int depth;
+
+    unsigned int screen_width = 0;
+    unsigned int screen_height = 0;
+
+    ret = XGetGeometry( wm.display, 
+                        wm.root_window,
+                        &returned_root,
+                        &x, &y,
+                        &screen_width, &screen_height,
+                        &border_width,
+                        &depth);
+    ASSERT(ret, "failed to get screen geometry\n");
     
     wm.current_workspace_index = 0;
     for (i = 0; i < NUM_OF_WORKSPACES; i++){
-        ret = workspace_init(&wm.workspaces[i]);
+
+        ret = workspace_init(   &wm.workspaces[i],
+                                screen_width,
+                                screen_height);
+
         ASSERT(ret == 0, "failed to init workspaces.\n");
     }
 
