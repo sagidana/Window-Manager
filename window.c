@@ -30,6 +30,8 @@ void window_destroy(WMWindow* window){
 int window_focus(Display* display, WMWindow* window){
     int ret;
 
+    ASSERT(window, "window to focus is NULL.\n");
+
     ret = XRaiseWindow(display, window->x_window);
     ASSERT(ret, "failed to raise the window\n");
 

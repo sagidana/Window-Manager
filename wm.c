@@ -208,8 +208,10 @@ void switch_workspace(Args* args){
     ret = workspace_show(wm.display, WORKSPACE);
     ASSERT(ret == 0, "failed to show workspace\n");
 
-    // ret = window_focus(wm.display, WORKSPACE->focused_window);
-    // ASSERT(ret == 0, "failed to focus window.\n");
+    if (WORKSPACE->focused_window){
+        ret = window_focus(wm.display, WORKSPACE->focused_window);
+        ASSERT(ret == 0, "failed to focus window.\n");
+    }
 
 fail:
     return;
