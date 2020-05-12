@@ -12,6 +12,7 @@ WMWindow* window_create(Display* display, Window x_window){
     new->x_window = x_window;
     new->list.next = NULL;
     new->list.prev = NULL;
+    new->visible = 1;
 
     ret = window_update(display, new);
     ASSERT(ret == 0, "failed to create a window.\n");
@@ -22,7 +23,7 @@ fail:
     return NULL;
 }
 
-void destroy_window(WMWindow* window){
+void window_destroy(WMWindow* window){
     free(window);
 }
 
@@ -126,4 +127,40 @@ int window_update(Display* display, WMWindow* window){
     return 0;
 fail:
     return -1;
+}
+
+int window_hide(Display* display, WMWindow* window){
+    int ret;
+    int new_x, new_y;
+    new_x = window->width * (-1); 
+    new_y = window->height * (-1); 
+
+    ret = window_move(  display, 
+                        window,
+                        new_x,
+                        new_y);
+    ASSERT(ret == 0, "failed to hide window.\n");
+    window->visible = 0;
+
+    return 0;
+
+fail:
+    return -1;
+}
+
+int window_show(Display* display, WMWindow* window){
+    int ret;
+
+    ret = window_move(  display, 
+                        window,
+                        window->x,
+                        window->y);
+    ASSERT(ret == 0, "failed to show window.\n");
+    window->visible = 1;
+
+    return 0;
+
+fail:
+    return -1;
+
 }

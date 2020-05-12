@@ -13,6 +13,8 @@ typedef struct{
     unsigned int height;
     unsigned int border_width;
 
+    int visible;
+
     Window x_window;
 }WMWindow;
 
@@ -38,5 +40,9 @@ int window_move(    Display* display,
                     int y);
 
 int window_update(Display* display, WMWindow* window);
+
+// we hide the window by moving it outside of the screen?
+int window_hide(Display* display, WMWindow* window);
+int window_show(Display* display, WMWindow* window);
 
 #endif

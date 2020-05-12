@@ -6,6 +6,9 @@
 #include <errno.h>
 
 
+#define WORKSPACE (&wm.workspaces[wm.current_workspace_index])
+#define IS_ACTIVE_WORKSPACE(ws) (ws == WORKSPACE)
+
 // -----------------------------------------------------
 // helpers functions
 // -----------------------------------------------------
@@ -14,6 +17,30 @@ Key* get_key_by_code(Display* display, int key_code){
     for (i = 0; i < LENGTH(wm_keys); i++){
         if (key_code == XKeysymToKeycode(display, wm_keys[i].keysym)){
             return &wm_keys[i];
+        }
+    }
+    return NULL;
+}
+
+WMWindow* get_wmwindow_by_x_window(Window x_window){
+    WMWindow* window = NULL;
+    int i;
+
+    for (i = 0; i < NUM_OF_WORKSPACES; i++){
+        window = workspace_get_window(&wm.workspaces[i], x_window);
+        if (window != NULL){ 
+            break;
+        }
+    }
+
+    return window;
+}
+
+WMWorkspace* get_workspace_by_window(WMWindow* window){
+    int i;
+    for (i = 0; i < NUM_OF_WORKSPACES; i++){
+        if(workspace_has_window(&wm.workspaces[i], window)){
+            return &wm.workspaces[i];
         }
     }
     return NULL;
@@ -46,10 +73,26 @@ void on_configure_request(XEvent* e){
 }
 
 void on_map_request(XEvent* e){
+    int ret;
+
     // currently just forward the request
     XMapRequestEvent* event = &e->xmaprequest;
 
     XMapWindow(wm.display, event->window);
+
+    // this is where we add the new window to our
+    // window manager!!
+    WMWindow* window = window_create(wm.display, event->window);
+    ASSERT(window, "failed to create window on_map_request.\n");
+
+    ret = window_focus(wm.display, window);
+    ASSERT(ret == 0, "failed to focus new window.\n");
+
+    ret = workspace_add_window(WORKSPACE, window);
+    ASSERT(ret == 0, "failed to add window to workspace.\n");
+
+fail:
+    return;
 }
 
 void on_key_press(XEvent* e){
@@ -66,11 +109,42 @@ void on_key_press(XEvent* e){
     }
 }
 
+void on_unmap_notify(XEvent* e){
+    int ret;
+    XUnmapEvent* event = &e->xunmap;
+
+    WMWindow* window = get_wmwindow_by_x_window(event->window);
+    ASSERT(window, "window manager could not find window.\n");
+
+    WMWorkspace* workspace = get_workspace_by_window(window);
+    ASSERT(workspace, "window manager could not find workspace.\n");
+
+    ret = workspace_remove_window(workspace, window);
+    ASSERT(ret == 0, "failed to remove window from workspace.\n");
+
+    window_destroy(window);
+
+    // focus the new window in case we remove from
+    // active workspace
+    if (IS_ACTIVE_WORKSPACE(workspace)){
+        LOG("trying to focus: %p\n", (void*) WORKSPACE->focused_window);
+
+        window_focus(wm.display, WORKSPACE->focused_window);
+    }
+
+fail:
+    return;
+}
+
+// -----------------------------------------------------
+// event_handlers declerations
+// -----------------------------------------------------
 static void (*event_handlers[LASTEvent]) (XEvent *) = {
 	[ButtonPress]       = on_default,
 	[ClientMessage]     = on_default,
 	[ConfigureRequest]  = on_configure_request,
 	[ConfigureNotify]   = on_default,
+    [CreateNotify]      = on_default,
 	[DestroyNotify]     = on_default,
 	[EnterNotify]       = on_default,
 	[Expose]            = on_default,
@@ -80,7 +154,7 @@ static void (*event_handlers[LASTEvent]) (XEvent *) = {
 	[MapRequest]        = on_map_request,
 	[MotionNotify]      = on_default,
 	[PropertyNotify]    = on_default,
-	[UnmapNotify]       = on_default
+	[UnmapNotify]       = on_unmap_notify
 };
 
 int x_on_error(Display* display, XErrorEvent* e){
@@ -151,15 +225,35 @@ fail:
     return -1;
 }
 
+int initialize_wm(){
+    int ret;
+    int i;
+
+    wm.to_exit = 0;
+    
+    wm.current_workspace_index = 0;
+    for (i = 0; i < NUM_OF_WORKSPACES; i++){
+        ret = workspace_init(&wm.workspaces[i]);
+        ASSERT(ret == 0, "failed to init workspaces.\n");
+    }
+
+    return 0;
+
+fail:
+    return -1;
+}
+
 int start(){
     int ret;
     wm.display = XOpenDisplay(NULL); // create connection
     ASSERT(wm.display, "failed to open display\n");
 
     wm.root_window = DefaultRootWindow(wm.display);
-    wm.to_exit = 0;
 
     detect_other_wm();
+    
+    ret = initialize_wm();
+    ASSERT(ret == 0, "failed to initialize wm.\n");
 
     XSetErrorHandler(x_on_error);
 
@@ -197,6 +291,8 @@ void main_event_loop(){
         if (event_handlers[e.type]){
             event_handlers[e.type](&e);
         }
+
+        XSync(wm.display, FALSE);
 
         if (wm.to_exit) break;
     }

@@ -15,6 +15,7 @@ typedef struct{
     int to_exit;
 
     WMWorkspace workspaces[NUM_OF_WORKSPACES];
+    int current_workspace_index;
 }Manager;
 
 static Manager wm;
