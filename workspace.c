@@ -28,6 +28,9 @@ fail:
 int workspace_remove_window(WMWorkspace* workspace, WMWindow* window){
     int ret;
 
+    ret = list_del(&window->list);
+    ASSERT(ret == 0, "failed to delete window from list.\n");
+
     // if we remove the window that is focused,
     // we need to replace it.
     if (workspace->focused_window == window){
@@ -37,9 +40,6 @@ int workspace_remove_window(WMWorkspace* workspace, WMWindow* window){
             workspace->focused_window = (WMWindow*) workspace->windows_list.next;
         }
     }
-
-    ret = list_del(&window->list);
-    ASSERT(ret == 0, "failed to delete window from list.\n");
 
     return 0;
 

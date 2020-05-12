@@ -127,9 +127,9 @@ void on_unmap_notify(XEvent* e){
     // focus the new window in case we remove from
     // active workspace
     if (IS_ACTIVE_WORKSPACE(workspace)){
-        LOG("trying to focus: %p\n", (void*) WORKSPACE->focused_window);
-
-        window_focus(wm.display, WORKSPACE->focused_window);
+        if (WORKSPACE->focused_window){
+            window_focus(wm.display, WORKSPACE->focused_window);
+        }
     }
 
 fail:
