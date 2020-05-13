@@ -28,4 +28,9 @@ WMWindow* workspace_get_window(WMWorkspace* workspace, Window x_window);
 
 int workspace_has_window(WMWorkspace* workspace, WMWindow* window);
 
+WMWindow* workspace_get_left_window(WMWorkspace* workspace);
+WMWindow* workspace_get_right_window(WMWorkspace* workspace);
+WMWindow* workspace_get_up_window(WMWorkspace* workspace);
+WMWindow* workspace_get_down_window(WMWorkspace* workspace);
+
 #endif

@@ -251,6 +251,115 @@ void to_exit(Args* args){
     wm.to_exit = 1; 
 }
 
+void focus_left(Args* args){
+    int ret;
+
+    ASSERT(WINDOW, "no window to focus\n");
+
+    WMWindow* window = workspace_get_left_window(WORKSPACE);
+    ASSERT(window, "no window found.\n");
+
+    ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+    ASSERT(ret == 0, "unable to unfocus window.\n");
+
+    // switch focused window
+    WORKSPACE->focused_window = window; 
+
+    ret = window_focus(wm.display, WINDOW);
+    ASSERT(ret == 0, "unable to focus window.\n");
+
+fail:
+    return;
+}
+
+void focus_right(Args* args){
+    int ret;
+
+    ASSERT(WINDOW, "no window to focus\n");
+
+    WMWindow* window = workspace_get_right_window(WORKSPACE);
+    ASSERT(window, "no window found.\n");
+
+    ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+    ASSERT(ret == 0, "unable to unfocus window.\n");
+
+    // switch focused window
+    WORKSPACE->focused_window = window; 
+
+    ret = window_focus(wm.display, WINDOW);
+    ASSERT(ret == 0, "unable to focus window.\n");
+
+fail:
+    return;
+}
+
+void focus_up(Args* args){
+    int ret;
+
+    ASSERT(WINDOW, "no window to focus\n");
+
+    WMWindow* window = workspace_get_up_window(WORKSPACE);
+    ASSERT(window, "no window found.\n");
+
+    ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+    ASSERT(ret == 0, "unable to unfocus window.\n");
+
+    // switch focused window
+    WORKSPACE->focused_window = window; 
+
+    ret = window_focus(wm.display, WINDOW);
+    ASSERT(ret == 0, "unable to focus window.\n");
+
+fail:
+    return;
+}
+
+void focus_down(Args* args){
+    int ret;
+
+    ASSERT(WINDOW, "no window to focus\n");
+
+    WMWindow* window = workspace_get_down_window(WORKSPACE);
+    ASSERT(window, "no window found.\n");
+
+    ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+    ASSERT(ret == 0, "unable to unfocus window.\n");
+
+    // switch focused window
+    WORKSPACE->focused_window = window; 
+
+    ret = window_focus(wm.display, WINDOW);
+    ASSERT(ret == 0, "unable to focus window.\n");
+
+fail:
+    return;
+}
+
+
+void move_left(Args* args){
+    ASSERT(WINDOW, "no window to move\n");
+fail:
+    return;
+}
+
+void move_right(Args* args){
+    ASSERT(WINDOW, "no window to move\n");
+fail:
+    return;
+}
+
+void move_up(Args* args){
+    ASSERT(WINDOW, "no window to move\n");
+fail:
+    return;
+}
+
+void move_down(Args* args){
+    ASSERT(WINDOW, "no window to move\n");
+fail:
+    return;
+}
+
 // -----------------------------------------------------
 
 int unregister_key_event(){

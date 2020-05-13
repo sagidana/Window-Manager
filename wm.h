@@ -39,6 +39,16 @@ void spawn(Args* args);
 void to_exit(Args* args);
 void switch_workspace(Args* args);
 void arrange(Args* args);
+
+void focus_left(Args* args);
+void focus_right(Args* args);
+void focus_up(Args* args);
+void focus_down(Args* args);
+
+void move_left(Args* args);
+void move_right(Args* args);
+void move_up(Args* args);
+void move_down(Args* args);
 // ------------------------------------------------------------------
 
 // ------------------------------------------------------------------
@@ -65,6 +75,11 @@ static Key wm_keys[] = {
     {MODKEY,    XK_D,           spawn,                  {.ptr = dmenucmd,   .i = -1} },
     {MODKEY,    XK_E,           to_exit,                {.ptr = NULL,       .i = -1 } },
     {MODKEY,    XK_V,           arrange,                {.ptr = NULL,       .i = XK_V} },
+
+    {MODKEY,    XK_H,           focus_left,             {.ptr = NULL,       .i = -1} },
+    {MODKEY,    XK_J,           focus_down,             {.ptr = NULL,       .i = -1} },
+    {MODKEY,    XK_K,           focus_up,               {.ptr = NULL,       .i = -1} },
+    {MODKEY,    XK_L,           focus_right,            {.ptr = NULL,       .i = -1} },
 
     {MODKEY,    XK_0,           switch_workspace,       {.ptr = NULL,       .i = 0 } },
     {MODKEY,    XK_1,           switch_workspace,       {.ptr = NULL,       .i = 1 } },
