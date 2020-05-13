@@ -233,10 +233,23 @@ void to_exit(Args* args){
 }
 // -----------------------------------------------------
 
+int unregister_key_event(){
+    int ret;
+
+    ret = XUngrabKey(wm.display, AnyKey, AnyModifier, wm.root_window);
+    ASSERT(ret, "failed to ungrab all keys.\n");
+    return 0;
+
+fail:
+    return -1;
+}
+
 int register_key_events(){
     int i;
     int ret;
-    XUngrabKey(wm.display, AnyKey, AnyModifier, wm.root_window);
+
+    ret = unregister_key_event();
+    ASSERT(ret == 0, "failed to unregiester all keys events.\n");
 
     for (i = 0; i < LENGTH(wm_keys); i++){
         // accept events only from the key presses 
@@ -324,8 +337,12 @@ fail:
 }
 
 int end(){
+    unregister_key_event();
+
     XCloseDisplay(wm.display);
+
     wm.display = NULL;
+
     return 0;
 }
 
