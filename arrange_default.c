@@ -66,6 +66,10 @@ int default_on_new_window(  WMWorkspace* workspace,
 
 int default_on_del_window(  WMWorkspace* workspace,
                             WMWindow* window){
+    if (get_num_of_windows(workspace) == 0){ 
+        return 0;
+    }
+
     return default_on_new_window(workspace, window);
 }
 

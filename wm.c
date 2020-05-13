@@ -350,23 +350,117 @@ fail:
 
 void move_left(Args* args){
     ASSERT(WINDOW, "no window to move\n");
+
+    WMWindow* window = workspace_get_left_window(WORKSPACE);
+    ASSERT(window, "no window found.\n");
+
+    int x, y;
+    unsigned int width, height;
+
+    x = window->x;
+    y = window->y;
+    width = window->width;
+    height = window->height;
+
+    window->x = WINDOW->x;
+    window->y = WINDOW->y;
+    window->width = WINDOW->width;
+    window->height = WINDOW->height;
+
+    WINDOW->x = x;
+    WINDOW->y = y;
+    WINDOW->width = width;
+    WINDOW->height = height;
+
+    workspace_show(wm.display, WORKSPACE);
+
 fail:
     return;
 }
 
 void move_right(Args* args){
     ASSERT(WINDOW, "no window to move\n");
+
+    WMWindow* window = workspace_get_right_window(WORKSPACE);
+    ASSERT(window, "no window found.\n");
+
+    int x, y;
+    unsigned int width, height;
+
+    x = window->x;
+    y = window->y;
+    width = window->width;
+    height = window->height;
+
+    window->x = WINDOW->x;
+    window->y = WINDOW->y;
+    window->width = WINDOW->width;
+    window->height = WINDOW->height;
+
+    WINDOW->x = x;
+    WINDOW->y = y;
+    WINDOW->width = width;
+    WINDOW->height = height;
+
+    workspace_show(wm.display, WORKSPACE);
+
 fail:
     return;
 }
 
 void move_up(Args* args){
     ASSERT(WINDOW, "no window to move\n");
+
+    WMWindow* window = workspace_get_up_window(WORKSPACE);
+    ASSERT(window, "no window found.\n");
+
+    int x, y;
+    unsigned int width, height;
+
+    x = window->x;
+    y = window->y;
+    width = window->width;
+    height = window->height;
+
+    window->x = WINDOW->x;
+    window->y = WINDOW->y;
+    window->width = WINDOW->width;
+    window->height = WINDOW->height;
+
+    WINDOW->x = x;
+    WINDOW->y = y;
+    WINDOW->width = width;
+    WINDOW->height = height;
+
+    workspace_show(wm.display, WORKSPACE);
 fail:
     return;
 }
 
 void move_down(Args* args){
+
+    WMWindow* window = workspace_get_down_window(WORKSPACE);
+    ASSERT(window, "no window found.\n");
+
+    int x, y;
+    unsigned int width, height;
+
+    x = window->x;
+    y = window->y;
+    width = window->width;
+    height = window->height;
+
+    window->x = WINDOW->x;
+    window->y = WINDOW->y;
+    window->width = WINDOW->width;
+    window->height = WINDOW->height;
+
+    WINDOW->x = x;
+    WINDOW->y = y;
+    WINDOW->width = width;
+    WINDOW->height = height;
+
+    workspace_show(wm.display, WORKSPACE);
     ASSERT(WINDOW, "no window to move\n");
 fail:
     return;

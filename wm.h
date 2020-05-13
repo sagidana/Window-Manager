@@ -77,6 +77,11 @@ static Key wm_keys[] = {
     {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} },
     {MODKEY | ShiftMask,    XK_V,       arrange,          {.ptr = NULL,     .i = XK_H} }, 
 
+    {MODKEY | ShiftMask,    XK_H,       move_left,        {.ptr = NULL,     .i = -1} },
+    {MODKEY | ShiftMask,    XK_J,       move_down,        {.ptr = NULL,     .i = -1} },
+    {MODKEY | ShiftMask,    XK_K,       move_up,          {.ptr = NULL,     .i = -1} },
+    {MODKEY | ShiftMask,    XK_L,       move_right,       {.ptr = NULL,     .i = -1} },
+
     {MODKEY,                XK_H,       focus_left,       {.ptr = NULL,     .i = -1} },
     {MODKEY,                XK_J,       focus_down,       {.ptr = NULL,     .i = -1} },
     {MODKEY,                XK_K,       focus_up,         {.ptr = NULL,     .i = -1} },
