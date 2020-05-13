@@ -81,7 +81,7 @@ int workspace_remove_window(WMWorkspace* workspace, WMWindow* window){
     int ret;
 
     ret = arrange_on_del_window(workspace, window);
-    ASSERT(ret == 0, "faile to arrange the workspace.\n");
+    ASSERT(ret == 0, "failed to arrange the workspace.\n");
 
     ret = list_del(&window->list);
     ASSERT(ret == 0, "failed to delete window from list.\n");

@@ -135,32 +135,28 @@ int default_on_del_window(  WMWorkspace* workspace,
 
     // up or down
     if (mergable->x == window->x){
-        mergable->height += window->height;
-
         // up
-        if (mergable->y + mergable->width == window->y){
-            LOG("up\n");
+        if (mergable->y + mergable->height == window->y){
+            mergable->height += window->height;
             return 0;
         }
         // down
         if (mergable->y == window->y + window->height){
-            LOG("down\n");
+            mergable->height += window->height;
             mergable->y = window->y;
             return 0;
         }
     }
     // left or right
     if (mergable->y == window->y){
-        mergable->width += window->width;
-
         // left
         if (mergable->x + mergable->width == window->x){
-            LOG("left\n");
+            mergable->width += window->width;
             return 0;
         }
         // right
         if (mergable->x == window->x + window->width){
-            LOG("right\n");
+            mergable->width += window->width;
             mergable->x = window->x;
             return 0;
         }
