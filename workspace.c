@@ -141,7 +141,6 @@ int workspace_has_window(WMWorkspace* workspace, WMWindow* window){
     return FALSE;
 }
 
-
 WMWindow* workspace_get_right_window(WMWorkspace* workspace){
     WMWindow* found_window = NULL;
 
@@ -153,20 +152,23 @@ WMWindow* workspace_get_right_window(WMWorkspace* workspace){
         curr = curr->next;
         WMWindow* curr_window = (WMWindow*) curr;
 
-        if ((curr_window->x > focused_window->x) &&  // is to the right?
-            (curr_window->y >= focused_window->y) &&
-            (curr_window->y <= focused_window->y + focused_window->height)){
-            // we found window in the right direction, 
-            // but is it the closest?
-            if (!found_window){
-                found_window = curr_window;
-                continue;
-            }
-
-            // we just found closer window
-            if (found_window->x > curr_window->x){
-                found_window = curr_window;
-            }
+        if (curr_window->x < focused_window->x + focused_window->width){
+            continue;
+        }
+        if (curr_window->y + curr_window->height < focused_window->y){
+            continue;
+        }
+        if (curr_window->y > focused_window->y + focused_window->height){
+            continue;
+        }
+    
+        if (!found_window){
+            found_window = curr_window;
+            continue;
+        }
+        // we just found closer window
+        if (found_window->x > curr_window->x){
+            found_window = curr_window;
         }
     }
 
@@ -185,20 +187,23 @@ WMWindow* workspace_get_left_window(WMWorkspace* workspace){
         curr = curr->next;
         WMWindow* curr_window = (WMWindow*) curr;
 
-        if ((curr_window->x < focused_window->x) &&  // is to the left?
-            (curr_window->y >= focused_window->y) &&
-            (curr_window->y <= focused_window->y + focused_window->height)){
-            // we found window in the right direction, 
-            // but is it the closest?
-            if (!found_window){
-                found_window = curr_window;
-                continue;
-            }
-
-            // we just found closer window
-            if (found_window->x < curr_window->x){
-                found_window = curr_window;
-            }
+        if (curr_window->x + curr_window->width > focused_window->x){
+            continue;
+        }
+        if (curr_window->y + curr_window->height < focused_window->y){
+            continue;
+        }
+        if (curr_window->y > focused_window->y + focused_window->height){
+            continue;
+        }
+    
+        if (!found_window){
+            found_window = curr_window;
+            continue;
+        }
+        // we just found closer window
+        if (found_window->x + found_window->width < curr_window->x + curr_window->width){
+            found_window = curr_window;
         }
     }
 
@@ -217,20 +222,23 @@ WMWindow* workspace_get_up_window(WMWorkspace* workspace){
         curr = curr->next;
         WMWindow* curr_window = (WMWindow*) curr;
 
-        if ((curr_window->y > focused_window->y) &&  // is to up?
-            (curr_window->x >= focused_window->x) &&
-            (curr_window->x <= focused_window->x + focused_window->width)){
-            // we found window in the right direction, 
-            // but is it the closest?
-            if (!found_window){
-                found_window = curr_window;
-                continue;
-            }
-
-            // we just found closer window
-            if (found_window->y > curr_window->y){
-                found_window = curr_window;
-            }
+        if (curr_window->y + curr_window->height > focused_window->y){
+            continue;
+        }
+        if (curr_window->x + curr_window->width < focused_window->x){
+            continue;
+        }
+        if (curr_window->x > focused_window->x + focused_window->width){
+            continue;
+        }
+    
+        if (!found_window){
+            found_window = curr_window;
+            continue;
+        }
+        // we just found closer window
+        if (found_window->y + found_window->height < curr_window->y + curr_window->height){
+            found_window = curr_window;
         }
     }
 
@@ -249,20 +257,24 @@ WMWindow* workspace_get_down_window(WMWorkspace* workspace){
         curr = curr->next;
         WMWindow* curr_window = (WMWindow*) curr;
 
-        if ((curr_window->y < focused_window->y) &&  // is down?
-            (curr_window->x >= focused_window->x) &&
-            (curr_window->x <= focused_window->x + focused_window->width)){
-            // we found window in the right direction, 
-            // but is it the closest?
-            if (!found_window){
-                found_window = curr_window;
-                continue;
-            }
+        if (curr_window->y < focused_window->y + focused_window->height){
+            continue;
+        }
+        if (curr_window->x + curr_window->width < focused_window->x){
+            continue;
+        }
+        if (curr_window->x > focused_window->x + focused_window->width){
+            continue;
+        }
+    
+        if (!found_window){
+            found_window = curr_window;
+            continue;
+        }
 
-            // we just found closer window
-            if (found_window->y < curr_window->y){
-                found_window = curr_window;
-            }
+        // we just found closer window
+        if (found_window->y > curr_window->y){
+            found_window = curr_window;
         }
     }
 
