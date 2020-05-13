@@ -18,6 +18,60 @@ int get_num_of_windows(WMWorkspace* workspace){
     return num_of_windows;
 }
 
+WMWindow* find_mergable(WMWorkspace* workspace, WMWindow* window){
+    WMWindow* found = NULL;
+
+    int x = window->x;
+    int y = window->y;
+    unsigned int width = window->width;
+    unsigned int height = window->height;
+
+    List* curr = &workspace->windows_list;
+    while(curr->next){
+        curr = curr->next;
+        WMWindow* curr_window = (WMWindow*) curr;
+
+        // ignore itself
+        if (curr_window == window){
+            continue;
+        }
+
+        // check down direction
+        if ((curr_window->x == x) &&
+            (curr_window->y == y + height) &&
+            (curr_window->x + curr_window->width == x + width)){
+
+            found = curr_window;
+            break;
+        }
+        // check up direction
+        if ((curr_window->x == x) &&
+            (curr_window->y + curr_window->height == y) &&
+            (curr_window->x + curr_window->width == x + width)){
+
+            found = curr_window;
+            break;
+        }
+        // check right direction
+        if ((curr_window->y == y) &&
+            (curr_window->x == x + width) &&
+            (curr_window->y + curr_window->height == y + height)){
+
+            found = curr_window;
+            break;
+        }
+        // check left direction
+        if ((curr_window->y == y) &&
+            (curr_window->x + curr_window->width == x) &&
+            (curr_window->y + curr_window->height == y + height)){
+
+            found = curr_window;
+            break;
+        }
+    }
+    return found;
+}
+
 // ---------------------------------------------------------
 
 #define VERTICAL_MODE (0)
@@ -45,6 +99,8 @@ int default_on_new_window(  WMWorkspace* workspace,
     }
 
     WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "focused_widnow is null?\n");
+
     if(state.mode == VERTICAL_MODE){
         focused_window->width /= 2;
 
@@ -60,17 +116,58 @@ int default_on_new_window(  WMWorkspace* workspace,
         window->width = focused_window->width;
         window->height = focused_window->height;
     }
-
     return 0;
+
+fail:
+    return -1;
 }
 
 int default_on_del_window(  WMWorkspace* workspace,
                             WMWindow* window){
-    if (get_num_of_windows(workspace) == 0){ 
+    // last window - nothing to do.
+    if (get_num_of_windows(workspace) == 1){
         return 0;
     }
 
-    return default_on_new_window(workspace, window);
+    // we need to merge the deleted window with existing one.
+    WMWindow* mergable = find_mergable(workspace, window);
+    ASSERT(window, "failed to find mergable.\n");
+
+    // up or down
+    if (mergable->x == window->x){
+        mergable->height += window->height;
+
+        // up
+        if (mergable->y + mergable->width == window->y){
+            LOG("up\n");
+            return 0;
+        }
+        // down
+        if (mergable->y == window->y + window->height){
+            LOG("down\n");
+            mergable->y = window->y;
+            return 0;
+        }
+    }
+    // left or right
+    if (mergable->y == window->y){
+        mergable->width += window->width;
+
+        // left
+        if (mergable->x + mergable->width == window->x){
+            LOG("left\n");
+            return 0;
+        }
+        // right
+        if (mergable->x == window->x + window->width){
+            LOG("right\n");
+            mergable->x = window->x;
+            return 0;
+        }
+    }
+
+fail:
+    return -1;
 }
 
 // one thing to note here.. 

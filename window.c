@@ -13,6 +13,7 @@ WMWindow* window_create(Display* display, Window x_window){
     new->list.next = NULL;
     new->list.prev = NULL;
     new->visible = 1;
+    new->border_width = BORDER_WIDTH;
 
     ret = window_update(display, new);
     ASSERT(ret == 0, "failed to create a window.\n");

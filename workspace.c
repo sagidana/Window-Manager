@@ -19,7 +19,6 @@ int workspace_hide(Display* display, WMWorkspace* workspace){
     int ret;
 
     List* curr = &workspace->windows_list;
-
     while(curr->next){
         curr = curr->next;
         // the 'list' element inside the WMWindow struct

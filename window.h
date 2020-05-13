@@ -4,6 +4,8 @@
 #include "common.h"
 #include "list.h"
 
+#define BORDER_WIDTH (5)
+
 typedef struct{
     List list;
 
