@@ -62,15 +62,15 @@ fail:
 int workspace_add_window(WMWorkspace* workspace, WMWindow* window){
     int ret;
 
+    ret = arrange_on_new_window(workspace, window);
+    ASSERT(ret == 0, "faile to arrange the workspace.\n");
+
     ret = list_add_tail(&workspace->windows_list, &window->list);
     ASSERT(ret == 0, "failed to add window to list.\n");
 
     // whenever we add a new window to a 
     // workspace, change the focus to the new window.
     workspace->focused_window = window;
-
-    ret = arrange_on_new_window(workspace, window);
-    ASSERT(ret == 0, "faile to arrange the workspace.\n");
 
     return 0;
 
@@ -80,6 +80,9 @@ fail:
 
 int workspace_remove_window(WMWorkspace* workspace, WMWindow* window){
     int ret;
+
+    ret = arrange_on_del_window(workspace, window);
+    ASSERT(ret == 0, "faile to arrange the workspace.\n");
 
     ret = list_del(&window->list);
     ASSERT(ret == 0, "failed to delete window from list.\n");
@@ -93,9 +96,6 @@ int workspace_remove_window(WMWorkspace* workspace, WMWindow* window){
             workspace->focused_window = (WMWindow*) workspace->windows_list.next;
         }
     }
-
-    ret = arrange_on_del_window(workspace, window);
-    ASSERT(ret == 0, "faile to arrange the workspace.\n");
 
     return 0;
 

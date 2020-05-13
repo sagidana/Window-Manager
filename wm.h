@@ -71,26 +71,27 @@ static const char* dmenucmd[] = {   "dmenu_run",
                                     NULL};
 
 static Key wm_keys[] = {
-    {MODKEY,    XK_Return,      spawn,                  {.ptr = termcmd,    .i = -1} },
-    {MODKEY,    XK_D,           spawn,                  {.ptr = dmenucmd,   .i = -1} },
-    {MODKEY,    XK_E,           to_exit,                {.ptr = NULL,       .i = -1 } },
-    {MODKEY,    XK_V,           arrange,                {.ptr = NULL,       .i = XK_V} },
+    {MODKEY,                XK_Return,  spawn,            {.ptr = termcmd,  .i = -1} },
+    {MODKEY,                XK_D,       spawn,            {.ptr = dmenucmd, .i = -1} },
+    {MODKEY,                XK_E,       to_exit,          {.ptr = NULL,     .i = -1 } },
+    {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} },
+    {MODKEY | ShiftMask,    XK_V,       arrange,          {.ptr = NULL,     .i = XK_H} }, 
 
-    {MODKEY,    XK_H,           focus_left,             {.ptr = NULL,       .i = -1} },
-    {MODKEY,    XK_J,           focus_down,             {.ptr = NULL,       .i = -1} },
-    {MODKEY,    XK_K,           focus_up,               {.ptr = NULL,       .i = -1} },
-    {MODKEY,    XK_L,           focus_right,            {.ptr = NULL,       .i = -1} },
+    {MODKEY,                XK_H,       focus_left,       {.ptr = NULL,     .i = -1} },
+    {MODKEY,                XK_J,       focus_down,       {.ptr = NULL,     .i = -1} },
+    {MODKEY,                XK_K,       focus_up,         {.ptr = NULL,     .i = -1} },
+    {MODKEY,                XK_L,       focus_right,      {.ptr = NULL,     .i = -1} },
 
-    {MODKEY,    XK_0,           switch_workspace,       {.ptr = NULL,       .i = 0 } },
-    {MODKEY,    XK_1,           switch_workspace,       {.ptr = NULL,       .i = 1 } },
-    {MODKEY,    XK_2,           switch_workspace,       {.ptr = NULL,       .i = 2 } },
-    {MODKEY,    XK_3,           switch_workspace,       {.ptr = NULL,       .i = 3 } },
-    {MODKEY,    XK_4,           switch_workspace,       {.ptr = NULL,       .i = 4 } },
-    {MODKEY,    XK_5,           switch_workspace,       {.ptr = NULL,       .i = 5 } },
-    {MODKEY,    XK_6,           switch_workspace,       {.ptr = NULL,       .i = 6 } },
-    {MODKEY,    XK_7,           switch_workspace,       {.ptr = NULL,       .i = 7 } },
-    {MODKEY,    XK_8,           switch_workspace,       {.ptr = NULL,       .i = 8 } },
-    {MODKEY,    XK_9,           switch_workspace,       {.ptr = NULL,       .i = 9 } }
+    {MODKEY,                XK_0,       switch_workspace, {.ptr = NULL,     .i = 0 } },
+    {MODKEY,                XK_1,       switch_workspace, {.ptr = NULL,     .i = 1 } },
+    {MODKEY,                XK_2,       switch_workspace, {.ptr = NULL,     .i = 2 } },
+    {MODKEY,                XK_3,       switch_workspace, {.ptr = NULL,     .i = 3 } },
+    {MODKEY,                XK_4,       switch_workspace, {.ptr = NULL,     .i = 4 } },
+    {MODKEY,                XK_5,       switch_workspace, {.ptr = NULL,     .i = 5 } },
+    {MODKEY,                XK_6,       switch_workspace, {.ptr = NULL,     .i = 6 } },
+    {MODKEY,                XK_7,       switch_workspace, {.ptr = NULL,     .i = 7 } },
+    {MODKEY,                XK_8,       switch_workspace, {.ptr = NULL,     .i = 8 } },
+    {MODKEY,                XK_9,       switch_workspace, {.ptr = NULL,     .i = 9 } }
 };
 
 // ------------------------------------------------------------------

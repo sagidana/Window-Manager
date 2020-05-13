@@ -16,12 +16,24 @@
 // -----------------------------------------------------
 // helpers functions
 // -----------------------------------------------------
-Key* get_key_by_code(Display* display, int key_code){
+Key* get_key_by_event(Display* display, XKeyEvent* event){
+#define ONLY_MODIFIERS(x) (x & (ShiftMask   | \
+                                ControlMask | \
+                                Mod1Mask    | \
+                                Mod2Mask    | \
+                                Mod3Mask    | \
+                                Mod4Mask    | \
+                                Mod5Mask))
     int i;
     for (i = 0; i < LENGTH(wm_keys); i++){
-        if (key_code == XKeysymToKeycode(display, wm_keys[i].keysym)){
-            return &wm_keys[i];
+        if (event->keycode != XKeysymToKeycode(display, wm_keys[i].keysym)){
+            continue;
         }
+        if (ONLY_MODIFIERS(event->state) != ONLY_MODIFIERS(wm_keys[i].mod)){
+            continue;
+        }
+
+        return &wm_keys[i];
     }
     return NULL;
 }
@@ -104,7 +116,7 @@ fail:
 
 void on_key_press(XEvent* e){
     XKeyEvent* event = &e->xkey;
-    Key* current_key = get_key_by_code(wm.display, event->keycode);
+    Key* current_key = get_key_by_event(wm.display, event);
     if (current_key == NULL){
         return;
     }
