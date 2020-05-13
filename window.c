@@ -47,6 +47,22 @@ fail:
     return -1;
 }
 
+int window_unfocus(Display* display, Window root_window, WMWindow* window){
+    int ret;
+
+    ASSERT(window, "window to focus is NULL.\n");
+
+    ret = XSetInputFocus(   display, 
+                            root_window,
+                            RevertToPointerRoot,
+                            CurrentTime);
+    ASSERT(ret, "failed to unfocus the window.\n");
+
+    return 0;
+
+fail:
+    return -1;
+}
 int window_resize(  Display* display, 
                     WMWindow* window,
                     unsigned int width,
@@ -93,7 +109,7 @@ int window_reconfigure( Display* display,
     changes.y = y;
     changes.width = width;
     changes.height = height;
-    changes.border_width = window->width;
+    changes.border_width = window->border_width;
 
     value_mask =    CWX | CWY |
                     CWWidth | CWHeight |
@@ -154,11 +170,13 @@ fail:
 int window_show(Display* display, WMWindow* window){
     int ret;
 
+    ret = window_reconfigure(display, 
+                             window,
+                             window->x,
+                             window->y,
+                             window->width,
+                             window->height);
 
-    ret = window_move(  display, 
-                        window,
-                        window->x,
-                        window->y);
     ASSERT(ret == 0, "failed to show window.\n");
     window->visible = 1;
 

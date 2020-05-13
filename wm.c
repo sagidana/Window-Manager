@@ -7,6 +7,8 @@
 
 
 #define WORKSPACE (&wm.workspaces[wm.current_workspace_index])
+#define WINDOW (WORKSPACE->focused_window)
+
 #define IS_ACTIVE_WORKSPACE(ws) (ws == WORKSPACE)
 
 // -----------------------------------------------------
@@ -85,11 +87,14 @@ void on_map_request(XEvent* e){
     WMWindow* window = window_create(wm.display, event->window);
     ASSERT(window, "failed to create window on_map_request.\n");
 
-    ret = window_focus(wm.display, window);
-    ASSERT(ret == 0, "failed to focus new window.\n");
-
     ret = workspace_add_window(WORKSPACE, window);
     ASSERT(ret == 0, "failed to add window to workspace.\n");
+
+    ret = workspace_show(wm.display, WORKSPACE);
+    ASSERT(ret == 0, "failed to show workspace.\n");
+
+    ret = window_focus(wm.display, WINDOW);
+    ASSERT(ret == 0, "failed to focus new window.\n");
 
 fail:
     return;
@@ -127,8 +132,8 @@ void on_unmap_notify(XEvent* e){
     // focus the new window in case we remove from
     // active workspace
     if (IS_ACTIVE_WORKSPACE(workspace)){
-        if (WORKSPACE->focused_window){
-            window_focus(wm.display, WORKSPACE->focused_window);
+        if (WINDOW){
+            window_focus(wm.display, WINDOW);
         }
     }
 
@@ -196,6 +201,11 @@ void switch_workspace(Args* args){
         return;
     }
 
+    if (WINDOW){ // only if there is a window.
+        ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+        ASSERT(ret == 0, "failed to unfocus prev window.\n");
+    }
+
     ret = workspace_hide(wm.display, WORKSPACE);
     ASSERT(ret == 0, "failed to hide workspace\n");
 
@@ -204,8 +214,8 @@ void switch_workspace(Args* args){
     ret = workspace_show(wm.display, WORKSPACE);
     ASSERT(ret == 0, "failed to show workspace\n");
 
-    if (WORKSPACE->focused_window){
-        ret = window_focus(wm.display, WORKSPACE->focused_window);
+    if (WINDOW){ // only if there is a window.
+        ret = window_focus(wm.display, WINDOW);
         ASSERT(ret == 0, "failed to focus window.\n");
     }
 
