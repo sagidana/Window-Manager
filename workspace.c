@@ -1,4 +1,6 @@
 #include "workspace.h"
+#include "arrange.h"
+
 
 int workspace_init( WMWorkspace* workspace, 
                     unsigned int width, 
@@ -67,6 +69,9 @@ int workspace_add_window(WMWorkspace* workspace, WMWindow* window){
     // workspace, change the focus to the new window.
     workspace->focused_window = window;
 
+    ret = arrange_workspace(workspace);
+    ASSERT(ret == 0, "faile to arrange the workspace.\n");
+
     return 0;
 
 fail:
@@ -88,6 +93,9 @@ int workspace_remove_window(WMWorkspace* workspace, WMWindow* window){
             workspace->focused_window = (WMWindow*) workspace->windows_list.next;
         }
     }
+
+    ret = arrange_workspace(workspace);
+    ASSERT(ret == 0, "faile to arrange the workspace.\n");
 
     return 0;
 
