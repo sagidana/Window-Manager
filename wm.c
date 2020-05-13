@@ -134,6 +134,8 @@ void on_unmap_notify(XEvent* e){
     // focus the new window in case we remove from
     // active workspace
     if (IS_ACTIVE_WORKSPACE(workspace)){
+        ret = workspace_show(wm.display, WORKSPACE);
+
         if (WINDOW){
             window_focus(wm.display, WINDOW);
         }
@@ -314,7 +316,8 @@ int initialize_wm(){
                         &depth);
     ASSERT(ret, "failed to get screen geometry\n");
 
-    wm.current_workspace_index = 0;
+    // the first workspace will be 1 not 0.
+    wm.current_workspace_index = 1; 
     for (i = 0; i < NUM_OF_WORKSPACES; i++){
 
         ret = workspace_init(   &wm.workspaces[i],

@@ -1,6 +1,24 @@
 #include "arrange.h"
 
 
+// ---------------------------------------------------------
+// helper functions
+// ---------------------------------------------------------
+
+int get_num_of_windows(WMWorkspace* workspace){
+    int num_of_windows = 0;
+
+    List* curr = &workspace->windows_list;
+    while(curr->next){
+        curr = curr->next;
+
+        num_of_windows++;
+    }
+
+    return num_of_windows;
+}
+
+// ---------------------------------------------------------
 
 // ---------------------------------------------------------
 // Default implementation
@@ -12,6 +30,10 @@ int default_on_new_window(  WMWorkspace* workspace,
 
     List* curr = &workspace->windows_list;
 
+    int num_of_windows = get_num_of_windows(workspace);
+    int width_of_each_window = workspace->width / num_of_windows;
+    int x_of_current_window = 0;
+
     while(curr->next){
         curr = curr->next;
         // the 'list' element inside the WMWindow struct
@@ -20,10 +42,12 @@ int default_on_new_window(  WMWorkspace* workspace,
         // the List* to WMWindow*
         WMWindow* curr_window = (WMWindow*) curr;
 
-        curr_window->x = 0;
+        curr_window->x = x_of_current_window;
         curr_window->y = 0;
-        curr_window->width = workspace->width;
+        curr_window->width = width_of_each_window;
         curr_window->height = workspace->height;
+
+        x_of_current_window += width_of_each_window;
     }
 
     return 0;
@@ -33,7 +57,7 @@ int default_on_new_window(  WMWorkspace* workspace,
 
 int default_on_del_window(  WMWorkspace* workspace,
                             WMWindow* window){
-    return 0;
+    return default_on_new_window(workspace, window);
 }
 
 int default_on_key_press(int keysym){
