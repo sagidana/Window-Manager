@@ -5,6 +5,8 @@
 #include <unistd.h>     
 #include <errno.h>
 
+#include "arrange.h"
+
 
 #define WORKSPACE (&wm.workspaces[wm.current_workspace_index])
 #define WINDOW (WORKSPACE->focused_window)
@@ -189,6 +191,11 @@ void detect_other_wm(){
 // -----------------------------------------------------
 // functions for the key bindings events
 // -----------------------------------------------------
+
+void arrange(Args* args){
+    arrange_on_key_press(args->i);
+}
+
 void switch_workspace(Args* args){
     int ret;
 
@@ -241,6 +248,7 @@ void to_exit(Args* args){
     // trigger wm to exit.
     wm.to_exit = 1; 
 }
+
 // -----------------------------------------------------
 
 int unregister_key_event(){
