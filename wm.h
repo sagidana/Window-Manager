@@ -36,6 +36,7 @@ typedef struct{
 // functions exported for key bindings
 // ------------------------------------------------------------------
 void spawn(Args* args);
+void kill(Args* args);
 void to_exit(Args* args);
 void switch_workspace(Args* args);
 void arrange(Args* args);
@@ -74,6 +75,8 @@ static Key wm_keys[] = {
     {MODKEY,                XK_Return,  spawn,            {.ptr = termcmd,  .i = -1} },
     {MODKEY,                XK_D,       spawn,            {.ptr = dmenucmd, .i = -1} },
     {MODKEY,                XK_E,       to_exit,          {.ptr = NULL,     .i = -1 } },
+
+    {MODKEY | ShiftMask,    XK_Q,       kill,             {.ptr = NULL,     .i = -1} },
 
     // toggle vertical mode
     {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} },

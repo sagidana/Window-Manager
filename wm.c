@@ -246,6 +246,11 @@ fail:
     return;
 }
 
+void kill(Args* args){
+    XDestroyWindow(wm.display, WINDOW->x_window);
+    XSync(wm.display, FALSE);
+}
+
 void spawn(Args* args){
     char** argv = (char**)args->ptr;
 
