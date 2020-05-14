@@ -1,7 +1,7 @@
 X11INC = /usr/X11R6/include
 X11LIB = /usr/X11R6/lib
 
-LIBS = -L${X11LIB} -lX11 
+LIBS = -L${X11LIB} -lX11 -lm
 INCS = -I${X11INC}
 
 CC = cc
@@ -9,7 +9,7 @@ CC = cc
 LDFLAGS = ${LIBS}
 CFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -Os ${INCS}
 
-SRC = wm.c common.c workspace.c window.c list.c arrange.c arrange_default.c
+SRC = wm.c common.c workspace.c window.c list.c arrange.c arrange_default.c point.c
 
 OBJ = ${SRC:.c=.o}
 

@@ -1,5 +1,6 @@
 #include "workspace.h"
 #include "arrange.h"
+#include "point.h"
 
 
 int workspace_init( WMWorkspace* workspace, 
@@ -140,11 +141,30 @@ int workspace_has_window(WMWorkspace* workspace, WMWindow* window){
     return FALSE;
 }
 
+// ---------------------------------------------------------------------
+// Navigation
+// ---------------------------------------------------------------------
+
+Point center_point(WMWindow* window){
+    Point center = {.x = -1, .y = -1};
+
+    ASSERT(window, "window is NULL?\n");
+
+    center.x = window->x + (window->width / 2);
+    center.y = window->y + (window->height / 2);
+
+fail:
+    return center;
+}
+
 WMWindow* workspace_get_right_window(WMWorkspace* workspace){
     WMWindow* found_window = NULL;
 
     WMWindow* focused_window = workspace->focused_window;
     ASSERT(focused_window, "no focused window.\n");
+
+    Point focused_center_point = center_point(focused_window);
+    float min_found_distance = workspace->width;
 
     List* curr = &workspace->windows_list;
     while(curr->next){
@@ -154,19 +174,16 @@ WMWindow* workspace_get_right_window(WMWorkspace* workspace){
         if (curr_window->x < focused_window->x + focused_window->width){
             continue;
         }
-        if (curr_window->y + curr_window->height < focused_window->y){
-            continue;
-        }
-        if (curr_window->y > focused_window->y + focused_window->height){
-            continue;
-        }
-    
-        if (!found_window){
-            found_window = curr_window;
-            continue;
-        }
-        // we just found closer window
-        if (found_window->x > curr_window->x){
+
+        Point curr_center_point = center_point(curr_window);
+
+        float distance = point_distance( focused_center_point, 
+                                                curr_center_point);
+
+        LOG("min_found: %.6f, distance: %.6f\n", min_found_distance, distance);
+
+        if (min_found_distance > distance){
+            min_found_distance = distance;
             found_window = curr_window;
         }
     }
@@ -181,6 +198,9 @@ WMWindow* workspace_get_left_window(WMWorkspace* workspace){
     WMWindow* focused_window = workspace->focused_window;
     ASSERT(focused_window, "no focused window.\n");
 
+    Point focused_center_point = center_point(focused_window);
+    float min_found_distance = workspace->width;
+
     List* curr = &workspace->windows_list;
     while(curr->next){
         curr = curr->next;
@@ -189,19 +209,15 @@ WMWindow* workspace_get_left_window(WMWorkspace* workspace){
         if (curr_window->x + curr_window->width > focused_window->x){
             continue;
         }
-        if (curr_window->y + curr_window->height < focused_window->y){
-            continue;
-        }
-        if (curr_window->y > focused_window->y + focused_window->height){
-            continue;
-        }
-    
-        if (!found_window){
-            found_window = curr_window;
-            continue;
-        }
-        // we just found closer window
-        if (found_window->x + found_window->width < curr_window->x + curr_window->width){
+        Point curr_center_point = center_point(curr_window);
+
+        float distance = point_distance( focused_center_point, 
+                                                curr_center_point);
+
+        LOG("min_found: %.6f, distance: %.6f\n", min_found_distance, distance);
+
+        if (min_found_distance > distance){
+            min_found_distance = distance;
             found_window = curr_window;
         }
     }
@@ -216,6 +232,9 @@ WMWindow* workspace_get_up_window(WMWorkspace* workspace){
     WMWindow* focused_window = workspace->focused_window;
     ASSERT(focused_window, "no focused window.\n");
 
+    Point focused_center_point = center_point(focused_window);
+    float min_found_distance = workspace->height;
+
     List* curr = &workspace->windows_list;
     while(curr->next){
         curr = curr->next;
@@ -224,19 +243,15 @@ WMWindow* workspace_get_up_window(WMWorkspace* workspace){
         if (curr_window->y + curr_window->height > focused_window->y){
             continue;
         }
-        if (curr_window->x + curr_window->width < focused_window->x){
-            continue;
-        }
-        if (curr_window->x > focused_window->x + focused_window->width){
-            continue;
-        }
-    
-        if (!found_window){
-            found_window = curr_window;
-            continue;
-        }
-        // we just found closer window
-        if (found_window->y + found_window->height < curr_window->y + curr_window->height){
+        Point curr_center_point = center_point(curr_window);
+
+        float distance = point_distance( focused_center_point, 
+                                                curr_center_point);
+
+        LOG("min_found: %.6f, distance: %.6f\n", min_found_distance, distance);
+
+        if (min_found_distance > distance){
+            min_found_distance = distance;
             found_window = curr_window;
         }
     }
@@ -251,6 +266,9 @@ WMWindow* workspace_get_down_window(WMWorkspace* workspace){
     WMWindow* focused_window = workspace->focused_window;
     ASSERT(focused_window, "no focused window.\n");
 
+    Point focused_center_point = center_point(focused_window);
+    float min_found_distance = workspace->height;
+
     List* curr = &workspace->windows_list;
     while(curr->next){
         curr = curr->next;
@@ -259,20 +277,15 @@ WMWindow* workspace_get_down_window(WMWorkspace* workspace){
         if (curr_window->y < focused_window->y + focused_window->height){
             continue;
         }
-        if (curr_window->x + curr_window->width < focused_window->x){
-            continue;
-        }
-        if (curr_window->x > focused_window->x + focused_window->width){
-            continue;
-        }
-    
-        if (!found_window){
-            found_window = curr_window;
-            continue;
-        }
+        Point curr_center_point = center_point(curr_window);
 
-        // we just found closer window
-        if (found_window->y > curr_window->y){
+        float distance = point_distance( focused_center_point, 
+                                                curr_center_point);
+
+        LOG("min_found: %.6f, distance: %.6f\n", min_found_distance, distance);
+
+        if (min_found_distance > distance){
+            min_found_distance = distance;
             found_window = curr_window;
         }
     }
@@ -281,3 +294,4 @@ fail:
     return found_window;
 }
 
+// ---------------------------------------------------------------------
