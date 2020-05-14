@@ -94,7 +94,14 @@ int workspace_del_window(WMWorkspace* workspace, WMWindow* window){
             workspace->focused_window = NULL;
         }else{
             // workspace->focused_window = (WMWindow*) workspace->windows_list.next;
-            workspace->focused_window = (WMWindow*) window->list.prev;
+
+            // in case of the first window in the workspace
+            // the prev is the workspace itself, so dont focus it
+            if (window->list.prev && window->list.prev != &workspace->windows_list){
+                workspace->focused_window = (WMWindow*) window->list.prev;
+            }else if(window->list.next){
+                workspace->focused_window = (WMWindow*) window->list.next;
+            }
         }
     }
 
@@ -173,6 +180,12 @@ WMWindow* workspace_get_right_window(WMWorkspace* workspace){
         WMWindow* curr_window = (WMWindow*) curr;
 
         if (curr_window->x < focused_window->x + focused_window->width){
+            continue;
+        }
+        if (curr_window->y + curr_window->height < focused_window->y){
+            continue;
+        }
+        if (curr_window->y > focused_window->y + focused_window->height){
             continue;
         }
 

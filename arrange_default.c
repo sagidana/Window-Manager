@@ -2,10 +2,6 @@
 #include <X11/keysym.h> 
 
 
-
-
-
-
 // ---------------------------------------------------------
 // helper functions
 // ---------------------------------------------------------
@@ -187,7 +183,7 @@ int default_on_align_left(WMWorkspace* workspace){
     window = workspace_get_left_window(workspace);
     // end of screen
     if (window == NULL){
-        focused_window->width += focused_window->x - (GAP * 2);
+        focused_window->width += focused_window->x - (GAP);
         focused_window->x = 0 + GAP;
     }else{
         focused_window->width += focused_window->x - 
