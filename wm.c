@@ -138,7 +138,7 @@ void on_unmap_notify(XEvent* e){
     WMWorkspace* workspace = get_workspace_by_window(window);
     ASSERT(workspace, "window manager could not find workspace.\n");
 
-    ret = workspace_remove_window(workspace, window);
+    ret = workspace_del_window(workspace, window);
     ASSERT(ret == 0, "failed to remove window from workspace.\n");
 
     window_destroy(window);

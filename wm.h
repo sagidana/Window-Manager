@@ -75,8 +75,8 @@ static Key wm_keys[] = {
     {MODKEY,                XK_D,       spawn,            {.ptr = dmenucmd, .i = -1} },
     {MODKEY,                XK_E,       to_exit,          {.ptr = NULL,     .i = -1 } },
 
-    {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_1} },
-    {MODKEY | ShiftMask,    XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} }, 
+    // toggle vertical mode
+    {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} },
 
     // to move
     {MODKEY | ShiftMask,    XK_H,       move_left,        {.ptr = NULL,     .i = -1} },

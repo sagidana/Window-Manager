@@ -1,6 +1,11 @@
 #include "arrange_default.h"
 #include <X11/keysym.h> 
 
+
+
+
+
+
 // ---------------------------------------------------------
 // helper functions
 // ---------------------------------------------------------
@@ -415,49 +420,37 @@ fail:
     return -1;
 }
 
+int default_on_vertical_toggle(WMWorkspace* workspace){
+    if (state.mode == VERTICAL_MODE){
+        state.mode = HORIZONTAL_MODE;
+    }else{
+        state.mode = VERTICAL_MODE;
+    }
+    return 0;
+}
+
+int (*event_handlers[XK_nobreakspace]) (WMWorkspace *) = {
+    [XK_V] = default_on_vertical_toggle,
+
+    [XK_H] = default_on_align_left,
+    [XK_J] = default_on_align_down,
+    [XK_K] = default_on_align_up,
+    [XK_L] = default_on_align_right,
+
+    [XK_Y] = default_on_resize_left,
+    [XK_U] = default_on_resize_down,
+    [XK_I] = default_on_resize_up,
+    [XK_O] = default_on_resize_right
+};
+
 // one thing to note here.. 
 // the keysym can be difer from what the user
 // actually pressed. it is just the keysym
 // configured in the wm.h configuration of the
 // keybindings.
 int default_on_key_press(int keysym, WMWorkspace* workspace){
-    switch (keysym){
-        case (XK_V):
-            state.mode = VERTICAL_MODE;
-            break;
-        case (XK_1):
-            state.mode = HORIZONTAL_MODE;
-            break;
-
-        // align functions;
-        case (XK_H):
-            default_on_align_left(workspace);
-            break;
-        case (XK_J):
-            default_on_align_down(workspace);
-            break;
-        case (XK_K):
-            default_on_align_up(workspace);
-            break;
-        case (XK_L):
-            default_on_align_right(workspace);
-            break;
-
-        // resize functions;
-        case (XK_Y):
-            default_on_resize_left(workspace);
-            break;
-        case (XK_U):
-            default_on_resize_down(workspace);
-            break;
-        case (XK_I):
-            default_on_resize_up(workspace);
-            break;
-        case (XK_O):
-            default_on_resize_right(workspace);
-            break;
-        default:
-            break;
+    if (event_handlers[keysym]){
+        return event_handlers[keysym](workspace);
     }
     return 0;
 }

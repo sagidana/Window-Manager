@@ -78,7 +78,7 @@ fail:
     return -1;
 }
 
-int workspace_remove_window(WMWorkspace* workspace, WMWindow* window){
+int workspace_del_window(WMWorkspace* workspace, WMWindow* window){
     int ret;
 
     ret = arrange_on_del_window(workspace, window);
@@ -93,7 +93,8 @@ int workspace_remove_window(WMWorkspace* workspace, WMWindow* window){
         if (LIST_EMPTY(&workspace->windows_list)){
             workspace->focused_window = NULL;
         }else{
-            workspace->focused_window = (WMWindow*) workspace->windows_list.next;
+            // workspace->focused_window = (WMWindow*) workspace->windows_list.next;
+            workspace->focused_window = (WMWindow*) window->list.prev;
         }
     }
 
