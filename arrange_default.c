@@ -92,10 +92,10 @@ int default_on_new_window(  WMWorkspace* workspace,
 
     // the first window gets all the screen.
     if (get_num_of_windows(workspace) == 0){ 
-        window->x = 0;
-        window->y = 0;
-        window->width = workspace->width;
-        window->height = workspace->height;
+        window->x = 0 + GAP;
+        window->y = 0 + GAP;
+        window->width = workspace->width - GAP;
+        window->height = workspace->height - GAP;
 
         return 0;
     }
@@ -104,19 +104,23 @@ int default_on_new_window(  WMWorkspace* workspace,
     ASSERT(focused_window, "focused_widnow is null?\n");
 
     if(state.mode == VERTICAL_MODE){
-        focused_window->width /= 2;
+        unsigned int new_width = (focused_window->width / 2) - GAP;
 
-        window->x = focused_window->x + focused_window->width + 1;
+        focused_window->width = new_width;
+
         window->y = focused_window->y;
-        window->width = focused_window->width;
         window->height = focused_window->height;
+        window->x = focused_window->x + focused_window->width + (2 * GAP);
+        window->width = new_width;
     }else if (state.mode == HORIZONTAL_MODE){
-        focused_window->height /= 2;
+        unsigned int new_height = (focused_window->height / 2) - GAP;
+
+        focused_window->height = new_height;
 
         window->x = focused_window->x;
-        window->y = focused_window->y + focused_window->height + 1;
         window->width = focused_window->width;
-        window->height = focused_window->height;
+        window->y = focused_window->y + focused_window->height + (2 * GAP);
+        window->height = new_height;
     }
     return 0;
 
@@ -178,11 +182,15 @@ int default_on_align_left(WMWorkspace* workspace){
     window = workspace_get_left_window(workspace);
     // end of screen
     if (window == NULL){
-        focused_window->width += focused_window->x;
-        focused_window->x = 0;
+        focused_window->width += focused_window->x - (GAP * 2);
+        focused_window->x = 0 + GAP;
     }else{
-        focused_window->width += focused_window->x - (window->x + window->width);
-        focused_window->x -= focused_window->x - (window->x + window->width);
+        focused_window->width += focused_window->x - 
+                                (window->x + window->width) -
+                                (GAP * 2);
+        focused_window->x -= focused_window->x - 
+                                (window->x + window->width) -
+                                (GAP * 2);
     }
 
     return 0;
@@ -198,9 +206,13 @@ int default_on_align_right(WMWorkspace* workspace){
 
     window = workspace_get_right_window(workspace);
     if (window == NULL){
-        focused_window->width += workspace->width - (focused_window->x + focused_window->width);
+        focused_window->width += workspace->width - 
+                                (focused_window->x + focused_window->width) - 
+                                GAP;
     }else{
-        focused_window->width += window->x - (focused_window->x + focused_window->width);
+        focused_window->width += window->x - 
+                                (focused_window->x + focused_window->width) - 
+                                (GAP * 2);
     }
 
     return 0;
@@ -216,11 +228,15 @@ int default_on_align_up(WMWorkspace* workspace){
 
     window = workspace_get_up_window(workspace);
     if (window == NULL){
-        focused_window->height += focused_window->y;
-        focused_window->y = 0;
+        focused_window->height += focused_window->y - GAP;
+        focused_window->y = 0 + GAP;
     }else{
-        focused_window->height += focused_window->y - (window->y + window->height);
-        focused_window->y -= focused_window->y - (window->y + window->height);
+        focused_window->height += focused_window->y - 
+                                    (window->y + window->height) - 
+                                    (GAP * 2);
+        focused_window->y -= focused_window->y - 
+                                    (window->y + window->height) -
+                                    (GAP * 2);
     }
 
     return 0;
@@ -236,9 +252,13 @@ int default_on_align_down(WMWorkspace* workspace){
 
     window = workspace_get_down_window(workspace);
     if (window == NULL){
-        focused_window->height +=   workspace->height - (focused_window->y + focused_window->height);
+        focused_window->height += workspace->height - 
+                                    (focused_window->y + focused_window->height) -
+                                    GAP;
     }else{
-        focused_window->height += window->y - (focused_window->y + focused_window->height);
+        focused_window->height += window->y - 
+                                    (focused_window->y + focused_window->height) -
+                                    (GAP * 2);
     }
 fail:
     return -1;

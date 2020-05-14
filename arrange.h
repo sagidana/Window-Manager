@@ -6,6 +6,7 @@
 #include "workspace.h"
 #include "window.h"
 
+#define GAP (3)
 
 int arrange_on_new_window(  WMWorkspace* workspace, 
                             WMWindow* window);
