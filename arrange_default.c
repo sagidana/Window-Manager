@@ -18,6 +18,8 @@ int get_num_of_windows(WMWorkspace* workspace){
     return num_of_windows;
 }
 
+// TODO: if more than one choose smallest.
+// TODO: if no one is fitting search two that fits together.
 WMWindow* find_mergable(WMWorkspace* workspace, WMWindow* window){
     WMWindow* found = NULL;
 
@@ -104,7 +106,7 @@ int default_on_new_window(  WMWorkspace* workspace,
     if(state.mode == VERTICAL_MODE){
         focused_window->width /= 2;
 
-        window->x = focused_window->x + focused_window->width;
+        window->x = focused_window->x + focused_window->width + 1;
         window->y = focused_window->y;
         window->width = focused_window->width;
         window->height = focused_window->height;
@@ -112,7 +114,7 @@ int default_on_new_window(  WMWorkspace* workspace,
         focused_window->height /= 2;
 
         window->x = focused_window->x;
-        window->y = focused_window->y + focused_window->height;
+        window->y = focused_window->y + focused_window->height + 1;
         window->width = focused_window->width;
         window->height = focused_window->height;
     }
@@ -131,7 +133,7 @@ int default_on_del_window(  WMWorkspace* workspace,
 
     // we need to merge the deleted window with existing one.
     WMWindow* mergable = find_mergable(workspace, window);
-    ASSERT(window, "failed to find mergable.\n");
+    ASSERT(mergable, "failed to find mergable.\n");
 
     // up or down
     if (mergable->x == window->x){
@@ -163,7 +165,7 @@ int default_on_del_window(  WMWorkspace* workspace,
     }
 
 fail:
-    return -1;
+    return 0;
 }
 
 // one thing to note here.. 

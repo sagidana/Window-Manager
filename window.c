@@ -13,6 +13,7 @@ WMWindow* window_create(Display* display, Window x_window){
     new->list.next = NULL;
     new->list.prev = NULL;
     new->visible = 1;
+
     new->border_width = BORDER_WIDTH;
 
     ret = window_update(display, new);
@@ -131,14 +132,14 @@ fail:
 int window_update(Display* display, WMWindow* window){
     int ret;
     Window returned_root;
-    unsigned int depth;
+    unsigned int depth, border_width;
 
     ret = XGetGeometry( display, 
                         window->x_window,
                         &returned_root,
                         &window->x, &window->y,
                         &window->width, &window->height,
-                        &window->border_width,
+                        &border_width,
                         &depth);
 
     ASSERT(ret, "failed to get geometry\n");
