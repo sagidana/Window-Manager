@@ -58,7 +58,7 @@ void move_down(Args* args);
 // the mod key is winkey
 #define MODKEY Mod4Mask
 
-static const char* termcmd[] = {    "st", 
+static const char* termcmd[] = {    "termite", 
                                     NULL};
 
 static const char* dmenucmd[] = {   "dmenu_run", 
@@ -74,8 +74,9 @@ static Key wm_keys[] = {
     {MODKEY,                XK_Return,  spawn,            {.ptr = termcmd,  .i = -1} },
     {MODKEY,                XK_D,       spawn,            {.ptr = dmenucmd, .i = -1} },
     {MODKEY,                XK_E,       to_exit,          {.ptr = NULL,     .i = -1 } },
-    {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} },
-    {MODKEY | ShiftMask,    XK_V,       arrange,          {.ptr = NULL,     .i = XK_1} }, 
+
+    {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_1} },
+    {MODKEY | ShiftMask,    XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} }, 
 
     // to move
     {MODKEY | ShiftMask,    XK_H,       move_left,        {.ptr = NULL,     .i = -1} },

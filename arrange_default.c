@@ -265,106 +265,152 @@ fail:
 }
 
 // Resize windows!
+int default_on_resize_left(WMWorkspace* workspace);
+int default_on_resize_right(WMWorkspace* workspace);
+int default_on_resize_up(WMWorkspace* workspace);
+int default_on_resize_down(WMWorkspace* workspace);
+
 int default_on_resize_left(WMWorkspace* workspace){
     WMWindow* window;
+    int ret = 0;
 
     WMWindow* focused_window = workspace->focused_window;
     ASSERT(focused_window, "trying to resize without a focused window.\n");
 
     window = workspace_get_left_window(workspace);
-    ASSERT(window, "cannot resize if window not found.\n");
+    if (window == NULL){
+        window = workspace_get_right_window(workspace);
+        workspace->focused_window = window;
 
-    // is perfect?
-    ASSERT((window->y == focused_window->y), "resize: y != y\n");
-    ASSERT((window->height == focused_window->height), "resize: height != height\n");
+        ret = default_on_resize_left(workspace);
 
-    // // is close?
-    // ASSERT((focused_window->x - window->x + window->width < (GAP * 3)), 
-            // "resize: width != width\n");
+        workspace->focused_window = focused_window;
+    }else{
 
-    focused_window->x -= RESIZE_SIZE;
-    focused_window->width += RESIZE_SIZE;
-    window->width -= RESIZE_SIZE;
+        // is perfect?
+        ASSERT((window->y == focused_window->y), "resize: y != y\n");
+        ASSERT((window->height == focused_window->height), "resize: height != height\n");
 
-    return 0;
+        // is close?
+        unsigned int distance_between_windows = focused_window->x -
+            (window->x + window->width);
+        ASSERT((distance_between_windows < (GAP * 3)), 
+                "distance_between_windows < (GAP * 3)\n");
+
+        focused_window->x -= RESIZE_SIZE;
+        focused_window->width += RESIZE_SIZE;
+        window->width -= RESIZE_SIZE;
+    }
+    return ret;
+
 fail:
     return -1;
 }
 
 int default_on_resize_right(WMWorkspace* workspace){
     WMWindow* window;
+    int ret = 0;
 
     WMWindow* focused_window = workspace->focused_window;
     ASSERT(focused_window, "trying to resize without a focused window.\n");
 
     window = workspace_get_right_window(workspace);
-    ASSERT(window, "cannot resize if window not found.\n");
+    if (window == NULL){
+        window = workspace_get_left_window(workspace);
+        workspace->focused_window = window;
 
-    // is perfect?
-    ASSERT((window->y == focused_window->y), "resize: y != y\n");
-    ASSERT((window->height == focused_window->height), "resize: height != height\n");
+        ret = default_on_resize_right(workspace);
 
-    // // is close?
-    // ASSERT((window->x - focused_window->x + focused_window->width < (GAP * 3)), 
-            // "resize: width != width\n");
+        workspace->focused_window = focused_window;
+    }else{
+        // is perfect?
+        ASSERT((window->y == focused_window->y), "resize: y != y\n");
+        ASSERT((window->height == focused_window->height), "resize: height != height\n");
 
-    window->x += RESIZE_SIZE;
-    window->width -= RESIZE_SIZE;
-    focused_window->width += RESIZE_SIZE;
+        // // is close?
+        unsigned int distance_between_windows = window->x -
+            (focused_window->x + focused_window->width);
+        ASSERT((distance_between_windows < (GAP * 3)), 
+                "distance_between_windows < (GAP * 3)\n");
 
-    return 0;
+        window->x += RESIZE_SIZE;
+        window->width -= RESIZE_SIZE;
+        focused_window->width += RESIZE_SIZE;
+    }
+
+    return ret;
 fail:
     return -1;
 }
 
 int default_on_resize_up(WMWorkspace* workspace){
     WMWindow* window;
+    int ret = 0;
 
     WMWindow* focused_window = workspace->focused_window;
     ASSERT(focused_window, "trying to resize without a focused window.\n");
 
     window = workspace_get_up_window(workspace);
-    ASSERT(window, "cannot resize if window not found.\n");
+    if (window == NULL){
+        window = workspace_get_down_window(workspace);
+        workspace->focused_window = window;
 
-    // is perfect?
-    ASSERT((window->x == focused_window->x), "resize: x != x\n");
-    ASSERT((window->width == focused_window->width), "resize: width != width\n");
+        ret = default_on_resize_up(workspace);
 
-    // // is close?
-    // ASSERT((focused_window->y - window->y + window->height < (GAP * 3)), 
-            // "resize: height != height\n");
+        workspace->focused_window = focused_window;
+    }else{
+        // is perfect?
+        ASSERT((window->x == focused_window->x), "resize: x != x\n");
+        ASSERT((window->width == focused_window->width), "resize: width != width\n");
 
-    focused_window->y -= RESIZE_SIZE;
-    focused_window->height += RESIZE_SIZE;
-    window->height -= RESIZE_SIZE;
+        // // is close?
+        unsigned int distance_between_windows = focused_window->y -
+            (window->y + window->height);
+        ASSERT((distance_between_windows < (GAP * 3)), 
+                "distance_between_windows < (GAP * 3)\n");
 
-    return 0;
+        focused_window->y -= RESIZE_SIZE;
+        focused_window->height += RESIZE_SIZE;
+        window->height -= RESIZE_SIZE;
+    }
+
+    return ret;
 fail:
     return -1;
 }
 
 int default_on_resize_down(WMWorkspace* workspace){
     WMWindow* window;
+    int ret = 0;
 
     WMWindow* focused_window = workspace->focused_window;
     ASSERT(focused_window, "trying to resize without a focused window.\n");
 
     window = workspace_get_down_window(workspace);
-    ASSERT(window, "cannot resize if window not found.\n");
+    if (window == NULL){
+        window = workspace_get_up_window(workspace);
+        workspace->focused_window = window;
 
-    // is perfect?
-    ASSERT((window->x == focused_window->x), "resize: x != x\n");
-    ASSERT((window->width == focused_window->width), "resize: width != width\n");
+        ret = default_on_resize_down(workspace);
 
-    // // is close?
-    // ASSERT((focused_window->x - window->x + window->width > (GAP * 3)), 
-            // "resize: width != width\n");
+        workspace->focused_window = focused_window;
+    }else{
+        // is perfect?
+        ASSERT((window->x == focused_window->x), "resize: x != x\n");
+        ASSERT((window->width == focused_window->width), "resize: width != width\n");
 
-    focused_window->height += RESIZE_SIZE;
-    window->y += RESIZE_SIZE;
-    window->height -= RESIZE_SIZE;
+        // // is close?
+        unsigned int distance_between_windows = window->y -
+            (focused_window->y + focused_window->height);
+        ASSERT((distance_between_windows < (GAP * 3)), 
+                "distance_between_windows < (GAP * 3)\n");
 
-    return 0;
+        focused_window->height += RESIZE_SIZE;
+        window->y += RESIZE_SIZE;
+        window->height -= RESIZE_SIZE;
+    }
+
+    return ret;
 fail:
     return -1;
 }
