@@ -264,6 +264,111 @@ fail:
     return -1;
 }
 
+// Resize windows!
+int default_on_resize_left(WMWorkspace* workspace){
+    WMWindow* window;
+
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to resize without a focused window.\n");
+
+    window = workspace_get_left_window(workspace);
+    ASSERT(window, "cannot resize if window not found.\n");
+
+    // is perfect?
+    ASSERT((window->y == focused_window->y), "resize: y != y\n");
+    ASSERT((window->height == focused_window->height), "resize: height != height\n");
+
+    // // is close?
+    // ASSERT((focused_window->x - window->x + window->width < (GAP * 3)), 
+            // "resize: width != width\n");
+
+    focused_window->x -= RESIZE_SIZE;
+    focused_window->width += RESIZE_SIZE;
+    window->width -= RESIZE_SIZE;
+
+    return 0;
+fail:
+    return -1;
+}
+
+int default_on_resize_right(WMWorkspace* workspace){
+    WMWindow* window;
+
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to resize without a focused window.\n");
+
+    window = workspace_get_right_window(workspace);
+    ASSERT(window, "cannot resize if window not found.\n");
+
+    // is perfect?
+    ASSERT((window->y == focused_window->y), "resize: y != y\n");
+    ASSERT((window->height == focused_window->height), "resize: height != height\n");
+
+    // // is close?
+    // ASSERT((window->x - focused_window->x + focused_window->width < (GAP * 3)), 
+            // "resize: width != width\n");
+
+    window->x += RESIZE_SIZE;
+    window->width -= RESIZE_SIZE;
+    focused_window->width += RESIZE_SIZE;
+
+    return 0;
+fail:
+    return -1;
+}
+
+int default_on_resize_up(WMWorkspace* workspace){
+    WMWindow* window;
+
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to resize without a focused window.\n");
+
+    window = workspace_get_up_window(workspace);
+    ASSERT(window, "cannot resize if window not found.\n");
+
+    // is perfect?
+    ASSERT((window->x == focused_window->x), "resize: x != x\n");
+    ASSERT((window->width == focused_window->width), "resize: width != width\n");
+
+    // // is close?
+    // ASSERT((focused_window->y - window->y + window->height < (GAP * 3)), 
+            // "resize: height != height\n");
+
+    focused_window->y -= RESIZE_SIZE;
+    focused_window->height += RESIZE_SIZE;
+    window->height -= RESIZE_SIZE;
+
+    return 0;
+fail:
+    return -1;
+}
+
+int default_on_resize_down(WMWorkspace* workspace){
+    WMWindow* window;
+
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to resize without a focused window.\n");
+
+    window = workspace_get_down_window(workspace);
+    ASSERT(window, "cannot resize if window not found.\n");
+
+    // is perfect?
+    ASSERT((window->x == focused_window->x), "resize: x != x\n");
+    ASSERT((window->width == focused_window->width), "resize: width != width\n");
+
+    // // is close?
+    // ASSERT((focused_window->x - window->x + window->width > (GAP * 3)), 
+            // "resize: width != width\n");
+
+    focused_window->height += RESIZE_SIZE;
+    window->y += RESIZE_SIZE;
+    window->height -= RESIZE_SIZE;
+
+    return 0;
+fail:
+    return -1;
+}
+
 // one thing to note here.. 
 // the keysym can be difer from what the user
 // actually pressed. it is just the keysym
@@ -277,6 +382,7 @@ int default_on_key_press(int keysym, WMWorkspace* workspace){
         case (XK_1):
             state.mode = HORIZONTAL_MODE;
             break;
+
         // align functions;
         case (XK_H):
             default_on_align_left(workspace);
@@ -289,6 +395,20 @@ int default_on_key_press(int keysym, WMWorkspace* workspace){
             break;
         case (XK_L):
             default_on_align_right(workspace);
+            break;
+
+        // resize functions;
+        case (XK_Y):
+            default_on_resize_left(workspace);
+            break;
+        case (XK_U):
+            default_on_resize_down(workspace);
+            break;
+        case (XK_I):
+            default_on_resize_up(workspace);
+            break;
+        case (XK_O):
+            default_on_resize_right(workspace);
             break;
         default:
             break;
