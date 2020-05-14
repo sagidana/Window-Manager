@@ -131,41 +131,117 @@ int default_on_del_window(  WMWorkspace* workspace,
         return 0;
     }
 
-    // we need to merge the deleted window with existing one.
-    WMWindow* mergable = find_mergable(workspace, window);
-    ASSERT(mergable, "failed to find mergable.\n");
+    // // we need to merge the deleted window with existing one.
+    // WMWindow* mergable = find_mergable(workspace, window);
+    // ASSERT(mergable, "failed to find mergable.\n");
 
-    // up or down
-    if (mergable->x == window->x){
-        // up
-        if (mergable->y + mergable->height == window->y){
-            mergable->height += window->height;
-            return 0;
-        }
-        // down
-        if (mergable->y == window->y + window->height){
-            mergable->height += window->height;
-            mergable->y = window->y;
-            return 0;
-        }
-    }
-    // left or right
-    if (mergable->y == window->y){
-        // left
-        if (mergable->x + mergable->width == window->x){
-            mergable->width += window->width;
-            return 0;
-        }
-        // right
-        if (mergable->x == window->x + window->width){
-            mergable->width += window->width;
-            mergable->x = window->x;
-            return 0;
-        }
-    }
+    // // up or down
+    // if (mergable->x == window->x){
+        // // up
+        // if (mergable->y + mergable->height == window->y){
+            // mergable->height += window->height;
+            // return 0;
+        // }
+        // // down
+        // if (mergable->y == window->y + window->height){
+            // mergable->height += window->height;
+            // mergable->y = window->y;
+            // return 0;
+        // }
+    // }
+    // // left or right
+    // if (mergable->y == window->y){
+        // // left
+        // if (mergable->x + mergable->width == window->x){
+            // mergable->width += window->width;
+            // return 0;
+        // }
+        // // right
+        // if (mergable->x == window->x + window->width){
+            // mergable->width += window->width;
+            // mergable->x = window->x;
+            // return 0;
+        // }
+    // }
 
-fail:
+// fail:
     return 0;
+}
+
+// Align the focused window to the right direction.
+int default_on_align_left(WMWorkspace* workspace){
+    WMWindow* window;
+
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to align without a focused window.\n");
+
+    window = workspace_get_left_window(workspace);
+    // end of screen
+    if (window == NULL){
+        focused_window->width += focused_window->x;
+        focused_window->x = 0;
+    }else{
+        focused_window->width += focused_window->x - (window->x + window->width);
+        focused_window->x -= focused_window->x - (window->x + window->width);
+    }
+
+    return 0;
+fail:
+    return -1;
+}
+
+int default_on_align_right(WMWorkspace* workspace){
+    WMWindow* window;
+
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to align without a focused window.\n");
+
+    window = workspace_get_right_window(workspace);
+    if (window == NULL){
+        focused_window->width += workspace->width - (focused_window->x + focused_window->width);
+    }else{
+        focused_window->width += window->x - (focused_window->x + focused_window->width);
+    }
+
+    return 0;
+fail:
+    return -1;
+}
+
+int default_on_align_up(WMWorkspace* workspace){
+    WMWindow* window;
+
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to align without a focused window.\n");
+
+    window = workspace_get_up_window(workspace);
+    if (window == NULL){
+        focused_window->height += focused_window->y;
+        focused_window->y = 0;
+    }else{
+        focused_window->height += focused_window->y - (window->y + window->height);
+        focused_window->y -= focused_window->y - (window->y + window->height);
+    }
+
+    return 0;
+fail:
+    return -1;
+}
+
+int default_on_align_down(WMWorkspace* workspace){
+    WMWindow* window;
+
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to align without a focused window.\n");
+
+    window = workspace_get_down_window(workspace);
+    if (window == NULL){
+        focused_window->height +=   workspace->height - (focused_window->y + focused_window->height);
+    }else{
+        focused_window->height += window->y - (focused_window->y + focused_window->height);
+    }
+fail:
+    return -1;
 }
 
 // one thing to note here.. 
@@ -173,13 +249,26 @@ fail:
 // actually pressed. it is just the keysym
 // configured in the wm.h configuration of the
 // keybindings.
-int default_on_key_press(int keysym){
+int default_on_key_press(int keysym, WMWorkspace* workspace){
     switch (keysym){
         case (XK_V):
             state.mode = VERTICAL_MODE;
             break;
-        case (XK_H):
+        case (XK_1):
             state.mode = HORIZONTAL_MODE;
+            break;
+        // align functions;
+        case (XK_H):
+            default_on_align_left(workspace);
+            break;
+        case (XK_J):
+            default_on_align_down(workspace);
+            break;
+        case (XK_K):
+            default_on_align_up(workspace);
+            break;
+        case (XK_L):
+            default_on_align_right(workspace);
             break;
         default:
             break;

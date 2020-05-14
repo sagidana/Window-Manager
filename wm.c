@@ -207,7 +207,9 @@ void detect_other_wm(){
 // -----------------------------------------------------
 
 void arrange(Args* args){
-    arrange_on_key_press(args->i);
+    arrange_on_key_press(args->i, WORKSPACE);
+
+    workspace_show(wm.display, WORKSPACE);
 }
 
 void switch_workspace(Args* args){

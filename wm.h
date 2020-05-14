@@ -75,7 +75,7 @@ static Key wm_keys[] = {
     {MODKEY,                XK_D,       spawn,            {.ptr = dmenucmd, .i = -1} },
     {MODKEY,                XK_E,       to_exit,          {.ptr = NULL,     .i = -1 } },
     {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} },
-    {MODKEY | ShiftMask,    XK_V,       arrange,          {.ptr = NULL,     .i = XK_H} }, 
+    {MODKEY | ShiftMask,    XK_V,       arrange,          {.ptr = NULL,     .i = XK_1} }, 
 
     {MODKEY | ShiftMask,    XK_H,       move_left,        {.ptr = NULL,     .i = -1} },
     {MODKEY | ShiftMask,    XK_J,       move_down,        {.ptr = NULL,     .i = -1} },
@@ -86,6 +86,11 @@ static Key wm_keys[] = {
     {MODKEY,                XK_J,       focus_down,       {.ptr = NULL,     .i = -1} },
     {MODKEY,                XK_K,       focus_up,         {.ptr = NULL,     .i = -1} },
     {MODKEY,                XK_L,       focus_right,      {.ptr = NULL,     .i = -1} },
+
+    {MODKEY | Mod1Mask,     XK_H,       arrange,          {.ptr = NULL,     .i = XK_H} },
+    {MODKEY | Mod1Mask,     XK_J,       arrange,          {.ptr = NULL,     .i = XK_J} },
+    {MODKEY | Mod1Mask,     XK_K,       arrange,          {.ptr = NULL,     .i = XK_K} },
+    {MODKEY | Mod1Mask,     XK_L,       arrange,          {.ptr = NULL,     .i = XK_L} },
 
     {MODKEY,                XK_0,       switch_workspace, {.ptr = NULL,     .i = 0 } },
     {MODKEY,                XK_1,       switch_workspace, {.ptr = NULL,     .i = 1 } },

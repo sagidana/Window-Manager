@@ -17,8 +17,9 @@ int arrange_on_del_window(  WMWorkspace* workspace,
     return default_on_del_window(workspace, window);
 }
 
-int arrange_on_key_press(int keysym){
-    return default_on_key_press(keysym);
+int arrange_on_key_press(   int keysym, 
+                            WMWorkspace* workspace){
+    return default_on_key_press(keysym, workspace);
 }
 // ---------------------------------------------------------
 
