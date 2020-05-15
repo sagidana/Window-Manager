@@ -101,13 +101,23 @@ void on_map_request(XEvent* e){
     WMWindow* window = window_create(wm.display, event->window);
     ASSERT(window, "failed to create window on_map_request.\n");
 
+    if (WINDOW){
+        ret = window_unfocus(   wm.display, 
+                wm.root_window, 
+                WINDOW, 
+                wm.normal_window_color.pixel);
+        ASSERT(ret == 0, "failed to unfocus previous window");
+    }
+
     ret = workspace_add_window(WORKSPACE, window);
     ASSERT(ret == 0, "failed to add window to workspace.\n");
 
     ret = workspace_show(wm.display, WORKSPACE);
     ASSERT(ret == 0, "failed to show workspace.\n");
 
-    ret = window_focus(wm.display, WINDOW);
+    ret = window_focus( wm.display, 
+                        WINDOW, 
+                        wm.focused_window_color.pixel);
     ASSERT(ret == 0, "failed to focus new window.\n");
 
 fail:
@@ -149,7 +159,9 @@ void on_unmap_notify(XEvent* e){
         ret = workspace_show(wm.display, WORKSPACE);
 
         if (WINDOW){
-            window_focus(wm.display, WINDOW);
+            ret = window_focus( wm.display, 
+                                WINDOW, 
+                                wm.focused_window_color.pixel);
         }
     }
 
@@ -225,7 +237,10 @@ void switch_workspace(Args* args){
     }
 
     if (WINDOW){ // only if there is a window.
-        ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+        ret = window_unfocus(   wm.display, 
+                                wm.root_window, 
+                                WINDOW, 
+                                wm.normal_window_color.pixel);
         ASSERT(ret == 0, "failed to unfocus prev window.\n");
     }
 
@@ -238,7 +253,9 @@ void switch_workspace(Args* args){
     ASSERT(ret == 0, "failed to show workspace\n");
 
     if (WINDOW){ // only if there is a window.
-        ret = window_focus(wm.display, WINDOW);
+        ret = window_focus( wm.display, 
+                            WINDOW, 
+                            wm.focused_window_color.pixel);
         ASSERT(ret == 0, "failed to focus window.\n");
     }
 
@@ -278,13 +295,18 @@ void focus_left(Args* args){
     WMWindow* window = workspace_get_left_window(WORKSPACE);
     ASSERT(window, "no window found.\n");
 
-    ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+    ret = window_unfocus(   wm.display, 
+                            wm.root_window, 
+                            WINDOW, 
+                            wm.normal_window_color.pixel);
     ASSERT(ret == 0, "unable to unfocus window.\n");
 
     // switch focused window
     WORKSPACE->focused_window = window; 
 
-    ret = window_focus(wm.display, WINDOW);
+    ret = window_focus( wm.display, 
+                        WINDOW, 
+                        wm.focused_window_color.pixel);
     ASSERT(ret == 0, "unable to focus window.\n");
 
 fail:
@@ -299,13 +321,18 @@ void focus_right(Args* args){
     WMWindow* window = workspace_get_right_window(WORKSPACE);
     ASSERT(window, "no window found.\n");
 
-    ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+    ret = window_unfocus(   wm.display, 
+                            wm.root_window, 
+                            WINDOW, 
+                            wm.normal_window_color.pixel);
     ASSERT(ret == 0, "unable to unfocus window.\n");
 
     // switch focused window
     WORKSPACE->focused_window = window; 
 
-    ret = window_focus(wm.display, WINDOW);
+    ret = window_focus( wm.display, 
+                        WINDOW, 
+                        wm.focused_window_color.pixel);
     ASSERT(ret == 0, "unable to focus window.\n");
 
 fail:
@@ -320,13 +347,18 @@ void focus_up(Args* args){
     WMWindow* window = workspace_get_up_window(WORKSPACE);
     ASSERT(window, "no window found.\n");
 
-    ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+    ret = window_unfocus(   wm.display, 
+                            wm.root_window, 
+                            WINDOW, 
+                            wm.normal_window_color.pixel);
     ASSERT(ret == 0, "unable to unfocus window.\n");
 
     // switch focused window
     WORKSPACE->focused_window = window; 
 
-    ret = window_focus(wm.display, WINDOW);
+    ret = window_focus( wm.display, 
+                        WINDOW, 
+                        wm.focused_window_color.pixel);
     ASSERT(ret == 0, "unable to focus window.\n");
 
 fail:
@@ -341,13 +373,18 @@ void focus_down(Args* args){
     WMWindow* window = workspace_get_down_window(WORKSPACE);
     ASSERT(window, "no window found.\n");
 
-    ret = window_unfocus(wm.display, wm.root_window, WINDOW);
+    ret = window_unfocus(   wm.display, 
+                            wm.root_window, 
+                            WINDOW, 
+                            wm.normal_window_color.pixel);
     ASSERT(ret == 0, "unable to unfocus window.\n");
 
     // switch focused window
     WORKSPACE->focused_window = window; 
 
-    ret = window_focus(wm.display, WINDOW);
+    ret = window_focus( wm.display, 
+                        WINDOW, 
+                        wm.focused_window_color.pixel);
     ASSERT(ret == 0, "unable to focus window.\n");
 
 fail:
@@ -514,6 +551,30 @@ fail:
     return -1;
 }
 
+int create_colors(){
+    int ret;
+    int screen = DefaultScreen(wm.display);
+
+    Colormap colormap = DefaultColormap(wm.display, screen);
+
+    ret = XParseColor(wm.display, colormap, focused_window_color, &wm.focused_window_color);
+    ASSERT(ret, "failed to parse color.\n");
+    ret = XParseColor(wm.display, colormap, normal_window_color, &wm.normal_window_color);
+    ASSERT(ret, "failed to parse color.\n");
+    // XParseColor(wm.display, colormap, "rgb:cc/cc/cc", &wm.focused_window_color);
+    // XParseColor(wm.display, colormap, "rgb:22/22/22", &wm.normal_window_color);
+
+    ret = XAllocColor(wm.display, colormap, &wm.focused_window_color);
+    ASSERT(ret, "failed to alloc color.\n");
+    ret = XAllocColor(wm.display, colormap, &wm.normal_window_color);
+    ASSERT(ret, "failed to alloc color.\n");
+
+    return 0;
+
+fail:
+    return -1;
+}
+
 int initialize_wm(){
     int ret;
     int i;
@@ -548,6 +609,10 @@ int initialize_wm(){
 
         ASSERT(ret == 0, "failed to init workspaces.\n");
     }
+
+    create_colors();
+    // wm.focused_window_color = 
+    // wm.normal_window_color = 
 
     return 0;
 

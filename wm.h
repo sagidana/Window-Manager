@@ -16,6 +16,9 @@ typedef struct{
 
     WMWorkspace workspaces[NUM_OF_WORKSPACES];
     int current_workspace_index;
+
+    XColor focused_window_color;
+    XColor normal_window_color;
 }Manager;
 
 static Manager wm;
@@ -82,6 +85,7 @@ static Key wm_keys[] = {
 
     // toggle vertical mode
     {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} },
+    {MODKEY | ShiftMask,    XK_V,       arrange,          {.ptr = NULL,     .i = XK_1} },
     // toggle fullscreen mode
     {MODKEY,                XK_F,       arrange,          {.ptr = NULL,     .i = XK_F} },
 
@@ -122,6 +126,13 @@ static Key wm_keys[] = {
 };
 
 // ------------------------------------------------------------------
+
+// ------------------------------------------------------------------
+// Colors configurations
+// ------------------------------------------------------------------
+
+char focused_window_color[] = "#00FFFF";
+char normal_window_color[]  = "#000000";
 
 int main();
 

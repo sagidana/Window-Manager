@@ -6,8 +6,8 @@
 #include "workspace.h"
 #include "window.h"
 
-#define GAP (3)
-#define RESIZE_SIZE (30)
+#define GAP (2)
+#define RESIZE_SIZE (40)
 
 int arrange_on_new_window(  WMWorkspace* workspace, 
                             WMWindow* window);

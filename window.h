@@ -23,8 +23,14 @@ typedef struct{
 WMWindow* window_create(Display* display, Window x_window);
 void window_destroy(WMWindow* window);
 
-int window_focus(Display* display, WMWindow* window);
-int window_unfocus(Display* display, Window root_window, WMWindow* window);
+int window_focus(   Display* display, 
+                    WMWindow* window, 
+                    unsigned long pixel);
+int window_unfocus( Display* display, 
+                    Window root_window,     
+                    WMWindow* window,   
+                    unsigned long pixel);
+
 int window_reconfigure( Display* display, 
                         WMWindow* window, 
                         int x,

@@ -1,4 +1,3 @@
-
 #include "window.h"
 
 
@@ -29,7 +28,9 @@ void window_destroy(WMWindow* window){
     free(window);
 }
 
-int window_focus(Display* display, WMWindow* window){
+int window_focus(   Display* display, 
+                    WMWindow* window, 
+                    unsigned long pixel){
     int ret;
 
     ASSERT(window, "window to focus is NULL.\n");
@@ -37,11 +38,16 @@ int window_focus(Display* display, WMWindow* window){
     ret = XRaiseWindow(display, window->x_window);
     ASSERT(ret, "failed to raise the window\n");
 
+    // TODO: add change border color to focused color
+
     ret = XSetInputFocus(   display, 
                             window->x_window,
                             RevertToPointerRoot,
                             CurrentTime);
     ASSERT(ret, "failed to set focus for window\n");
+
+    ret = XSetWindowBorder(display, window->x_window, pixel);
+    ASSERT(ret, "failed to change border color.\n");
 
     return 0;
 
@@ -49,16 +55,24 @@ fail:
     return -1;
 }
 
-int window_unfocus(Display* display, Window root_window, WMWindow* window){
+int window_unfocus( Display* display, 
+                    Window root_window, 
+                    WMWindow* window,
+                    unsigned long pixel){
     int ret;
 
     ASSERT(window, "window to focus is NULL.\n");
+
+    // TODO: add change border color to normal color
 
     ret = XSetInputFocus(   display, 
                             root_window,
                             RevertToPointerRoot,
                             CurrentTime);
     ASSERT(ret, "failed to unfocus the window.\n");
+
+    ret = XSetWindowBorder(display, window->x_window, pixel);
+    ASSERT(ret, "failed to change border color.\n");
 
     return 0;
 

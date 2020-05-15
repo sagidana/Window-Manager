@@ -439,6 +439,15 @@ int default_on_vertical_toggle(WMWorkspace* workspace){
     return 0;
 }
 
+int default_on_vertical(WMWorkspace* workspace){
+    SET_MODE(VERTICAL_MODE);
+    return 0;
+}
+int default_on_horizontal(WMWorkspace* workspace){
+    SET_NO_MODE(VERTICAL_MODE);
+    return 0;
+}
+
 int default_on_fullscreen_toggle(WMWorkspace* workspace){
     if (IS_MODE(FULLSCREEN_MODE)){
         if (workspace->focused_window){
@@ -473,7 +482,8 @@ int default_on_fullscreen_toggle(WMWorkspace* workspace){
 }
 
 int (*event_handlers[XK_nobreakspace]) (WMWorkspace *) = {
-    [XK_V] = default_on_vertical_toggle,
+    [XK_V] = default_on_horizontal,
+    [XK_1] = default_on_vertical,
     [XK_F] = default_on_fullscreen_toggle,
 
     [XK_H] = default_on_align_left,
