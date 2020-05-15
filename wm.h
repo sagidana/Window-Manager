@@ -74,12 +74,16 @@ static const char* dmenucmd[] = {   "dmenu_run",
 static Key wm_keys[] = {
     {MODKEY,                XK_Return,  spawn,            {.ptr = termcmd,  .i = -1} },
     {MODKEY,                XK_D,       spawn,            {.ptr = dmenucmd, .i = -1} },
-    {MODKEY,                XK_E,       to_exit,          {.ptr = NULL,     .i = -1 } },
+
+    // exit wm
+    {MODKEY | ShiftMask,    XK_E,       to_exit,          {.ptr = NULL,     .i = -1 } },
 
     {MODKEY | ShiftMask,    XK_Q,       kill,             {.ptr = NULL,     .i = -1} },
 
     // toggle vertical mode
     {MODKEY,                XK_V,       arrange,          {.ptr = NULL,     .i = XK_V} },
+    // toggle fullscreen mode
+    {MODKEY,                XK_F,       arrange,          {.ptr = NULL,     .i = XK_F} },
 
     // to move
     {MODKEY | ShiftMask,    XK_H,       move_left,        {.ptr = NULL,     .i = -1} },
