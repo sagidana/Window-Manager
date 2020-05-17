@@ -126,12 +126,13 @@ fail:
 
 void on_key_press(XEvent* e){
     XKeyEvent* event = &e->xkey;
+
+    LOG("Key pressed: %d\n", event->keycode);
+
     Key* current_key = get_key_by_event(wm.display, event);
     if (current_key == NULL){
         return;
     }
-
-    LOG("Key pressed: %d\n", event->keycode);
 
     if (current_key->func){
         current_key->func(&current_key->args);

@@ -194,8 +194,6 @@ WMWindow* workspace_get_right_window(WMWorkspace* workspace){
         float distance = point_distance( focused_center_point, 
                                                 curr_center_point);
 
-        LOG("min_found: %.6f, distance: %.6f\n", min_found_distance, distance);
-
         if (min_found_distance > distance){
             min_found_distance = distance;
             found_window = curr_window;
@@ -227,8 +225,6 @@ WMWindow* workspace_get_left_window(WMWorkspace* workspace){
 
         float distance = point_distance( focused_center_point, 
                                                 curr_center_point);
-
-        LOG("min_found: %.6f, distance: %.6f\n", min_found_distance, distance);
 
         if (min_found_distance > distance){
             min_found_distance = distance;
@@ -262,8 +258,6 @@ WMWindow* workspace_get_up_window(WMWorkspace* workspace){
         float distance = point_distance( focused_center_point, 
                                                 curr_center_point);
 
-        LOG("min_found: %.6f, distance: %.6f\n", min_found_distance, distance);
-
         if (min_found_distance > distance){
             min_found_distance = distance;
             found_window = curr_window;
@@ -295,8 +289,6 @@ WMWindow* workspace_get_down_window(WMWorkspace* workspace){
 
         float distance = point_distance( focused_center_point, 
                                                 curr_center_point);
-
-        LOG("min_found: %.6f, distance: %.6f\n", min_found_distance, distance);
 
         if (min_found_distance > distance){
             min_found_distance = distance;
