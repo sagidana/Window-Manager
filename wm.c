@@ -169,6 +169,28 @@ void on_unmap_notify(XEvent* e){
 fail:
     return;
 }
+void on_configure_notify(XEvent* e){
+    int ret;
+    int i;
+    XConfigureEvent* event = &e->xconfigure;
+
+    if (event->window != wm.root_window){
+        return;
+    }
+
+    // resize screen.
+    for (i = 0; i < NUM_OF_WORKSPACES; i++){
+        ret = workspace_resize( wm.display, 
+                                &wm.workspaces[i],
+                                (unsigned int)event->width,
+                                (unsigned int)event->height);
+
+        ASSERT(ret == 0, "failed resizing workspace.\n");
+    }
+
+fail:
+    return;
+}
 
 // -----------------------------------------------------
 // event_handlers declerations
@@ -177,7 +199,7 @@ static void (*event_handlers[LASTEvent]) (XEvent *) = {
 	[ButtonPress]       = on_default,
 	[ClientMessage]     = on_default,
 	[ConfigureRequest]  = on_configure_request,
-	[ConfigureNotify]   = on_default,
+	[ConfigureNotify]   = on_configure_notify,
     [CreateNotify]      = on_default,
 	[DestroyNotify]     = on_default,
 	[EnterNotify]       = on_default,
@@ -582,6 +604,18 @@ int initialize_wm(){
 
     wm.to_exit = 0;
 
+    XSetErrorHandler(x_on_error);
+
+    ret = register_key_events();
+    ASSERT(ret == 0, "failed to register to key events\n");
+
+    XSelectInput(   wm.display, 
+                    wm.root_window,
+                    SubstructureRedirectMask    | 
+                    SubstructureNotifyMask      |
+                    PropertyChangeMask          |
+                    StructureNotifyMask);
+
     // unused variables
     Window returned_root;
     int x, y;
@@ -610,10 +644,7 @@ int initialize_wm(){
 
         ASSERT(ret == 0, "failed to init workspaces.\n");
     }
-
     create_colors();
-    // wm.focused_window_color = 
-    // wm.normal_window_color = 
 
     return 0;
 
@@ -632,11 +663,6 @@ int start(){
     
     ret = initialize_wm();
     ASSERT(ret == 0, "failed to initialize wm.\n");
-
-    XSetErrorHandler(x_on_error);
-
-    ret = register_key_events();
-    ASSERT(ret == 0, "failed to register to key events\n");
 
     XSync(wm.display, FALSE);
     return 0;
