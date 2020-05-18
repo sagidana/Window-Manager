@@ -817,13 +817,42 @@ fail:
 }
 
 int end(){
+    int ret;
     unregister_key_event();
 
     XCloseDisplay(wm.display);
 
     wm.display = NULL;
+    
+    // clean add monitors, workspaces and windows before exit.
+    while (wm.monitors_list.next){
+        WMMonitor* monitor = (WMMonitor*)wm.monitors_list.next;
 
+        ret = list_del(&monitor->list);
+        ASSERT(ret == 0, "failed to delete monitor on cleanup.\n");
+
+        while (monitor->workspaces_list.next){
+            WMWorkspace* workspace = (WMWorkspace*)monitor->workspaces_list.next;
+
+            ret = list_del(&workspace->list);
+            ASSERT(ret == 0, "failed to delete workspace on cleanup.\n");
+
+            while (workspace->windows_list.next){
+                WMWindow* window = (WMWindow*)workspace->windows_list.next;
+
+                ret = list_del(&window->list);
+                ASSERT(ret == 0, "failed to delete window on cleanup.\n");
+
+                window_destroy(window);
+            }
+            workspace_destroy(workspace);
+        }
+        monitor_destroy(monitor);
+    }
     return 0;
+
+fail:
+    return -1;
 }
 
 void main_event_loop(){
