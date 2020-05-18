@@ -13,6 +13,7 @@ WMMonitor* monitor_create(int x, int y, unsigned int width, unsigned height){
     monitor->y = y;
     monitor->width = width;
     monitor->height = height;
+    monitor->focused_workspace = NULL;
 
 fail:
     return monitor;
@@ -28,7 +29,8 @@ int monitor_add_workspace(WMMonitor* monitor, WMWorkspace* workspace){
     ret = list_add_tail(&monitor->workspaces_list, &workspace->list);
     ASSERT(ret == 0, "failed to add to list\n");
 
-    monitor->focused_workspace = workspace;
+    ret = monitor_focus_workspace(monitor, workspace);
+    ASSERT(ret == 0, "failed to focus new workspace\n");
 
     return 0;
 
@@ -57,4 +59,27 @@ int monitor_del_workspace(WMMonitor* monitor, WMWorkspace* workspace){
 
 fail:
     return -1;
+}
+
+int monitor_focus_workspace(WMMonitor* monitor, WMWorkspace* workspace){
+    if (monitor->focused_workspace == NULL){
+        monitor->focused_workspace = workspace;
+        return 0;
+    }
+    if (monitor->focused_workspace == workspace){
+        return 0; // do nothing.
+    }
+
+    if (workspace_empty(monitor->focused_workspace)){
+        WMWorkspace* tmp = monitor->focused_workspace;
+
+        monitor->focused_workspace = workspace;
+
+        monitor_del_workspace(monitor, tmp);
+        workspace_destroy(tmp);
+    }else{
+        monitor->focused_workspace = workspace;
+    }
+
+    return 0;
 }

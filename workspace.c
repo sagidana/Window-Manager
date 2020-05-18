@@ -18,6 +18,8 @@ WMWorkspace* workspace_create(  int number,
     workspace->windows_list.next = NULL;
     workspace->windows_list.prev = NULL;
 
+    workspace->focused_window = NULL;
+
     workspace->number = number;
     workspace->x = x;
     workspace->y = y;
@@ -30,19 +32,6 @@ fail:
 
 void workspace_destroy(WMWorkspace* workspace){
     free(workspace);
-}
-
-int workspace_init( WMWorkspace* workspace, 
-                    unsigned int width, 
-                    unsigned int height){
-
-    workspace->windows_list.next = NULL;
-    workspace->windows_list.prev = NULL;
-    workspace->focused_window = NULL;
-    workspace->height = height;
-    workspace->width = width;
-
-    return 0;
 }
 
 int workspace_empty(WMWorkspace* workspace){

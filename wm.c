@@ -266,6 +266,7 @@ void on_unmap_notify(XEvent* e){
             ret = monitor_del_workspace(monitor, workspace);
             ASSERT(ret == 0, "failed to delete workspace from monitor.\n");
 
+            LOG("destroyed workspace number: %d.\n",workspace->number);
             workspace_destroy(workspace);
         }
     }
@@ -368,19 +369,22 @@ void switch_workspace(Args* args){
     WMWorkspace* workspace = get_workspace_by_number(args->i);
     // if workspace is not exist create it.
     if (workspace == NULL){
-        workspace = workspace_create(   next_workspace_number(), 
+        workspace = workspace_create(   args->i, 
                                         MONITOR->x,
                                         MONITOR->y,
                                         MONITOR->width,
                                         MONITOR->height);
         ASSERT(workspace, "failed to create a workspace.\n");
 
+
         ret = monitor_add_workspace(MONITOR, workspace);
         ASSERT(ret == 0, "failed adding workspace to monitor.\n");
-    }
 
-    // MONITOR->focused_workspace = workspace;
-    // wm.current_workspace_index = args->i;
+    // if workspace exist change to focused
+    }else{
+        ret = monitor_focus_workspace(MONITOR, workspace);
+        ASSERT(ret == 0, "failed to focus workspace\n");
+    }
 
     ret = workspace_show(wm.display, WORKSPACE);
     ASSERT(ret == 0, "failed to show workspace\n");
