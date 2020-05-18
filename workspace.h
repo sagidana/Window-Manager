@@ -4,15 +4,24 @@
 #include "window.h"
 #include "list.h"
 
-#define NUM_OF_WORKSPACES (32)
-
 typedef struct{
+    List list;
+    int number;
     List windows_list;
     WMWindow* focused_window;
 
+    int x;
+    int y;
     unsigned int width;
     unsigned int height;
 }WMWorkspace;
+
+WMWorkspace* workspace_create(  int number, 
+                                int x,
+                                int y,
+                                unsigned int width,
+                                unsigned int height);
+void workspace_destroy(WMWorkspace* workspace);
 
 int workspace_init( WMWorkspace* workspace, 
                     unsigned int width, 
@@ -22,6 +31,8 @@ int workspace_resize(   Display* display,
                         WMWorkspace* workspace,
                         unsigned int width, 
                         unsigned int height);
+
+int workspace_empty(WMWorkspace* workspace);
 
 int workspace_hide(Display* display, WMWorkspace* workspace);
 int workspace_show(Display* display, WMWorkspace* workspace);

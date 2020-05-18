@@ -8,7 +8,8 @@
 #include "arrange.h"
 
 
-#define WORKSPACE (&wm.workspaces[wm.current_workspace_index])
+#define MONITOR (wm.focused_monitor)
+#define WORKSPACE (MONITOR->focused_workspace)
 #define WINDOW (WORKSPACE->focused_window)
 
 #define IS_ACTIVE_WORKSPACE(ws) (ws == WORKSPACE)
@@ -39,27 +40,119 @@ Key* get_key_by_event(Display* display, XKeyEvent* event){
 }
 
 WMWindow* get_wmwindow_by_x_window(Window x_window){
-    WMWindow* window = NULL;
-    int i;
+    List* curr_1 = &wm.monitors_list;
+    while (curr_1->next){
+        curr_1 = curr_1->next;
+        WMMonitor* monitor = (WMMonitor*)curr_1;
 
-    for (i = 0; i < NUM_OF_WORKSPACES; i++){
-        window = workspace_get_window(&wm.workspaces[i], x_window);
-        if (window != NULL){ 
-            break;
-        }
-    }
+        List* curr_2 = &monitor->workspaces_list;
+        while (curr_2->next){
+            curr_2 = curr_2->next;
+            WMWorkspace* workspace = (WMWorkspace*)curr_2;
 
-    return window;
-}
+            List* curr_3 = &workspace->windows_list;
+            while (curr_3->next){
+                curr_3 = curr_3->next;
+                WMWindow* window = (WMWindow*)curr_3;
 
-WMWorkspace* get_workspace_by_window(WMWindow* window){
-    int i;
-    for (i = 0; i < NUM_OF_WORKSPACES; i++){
-        if(workspace_has_window(&wm.workspaces[i], window)){
-            return &wm.workspaces[i];
+                if (window->x_window == x_window){
+                    return window;
+                }
+            }
         }
     }
     return NULL;
+}
+
+WMWorkspace* get_workspace_by_window(WMWindow* window){
+    List* curr_1 = &wm.monitors_list;
+    while (curr_1->next){
+        curr_1 = curr_1->next;
+        WMMonitor* monitor = (WMMonitor*)curr_1;
+
+        List* curr_2 = &monitor->workspaces_list;
+        while (curr_2->next){
+            curr_2 = curr_2->next;
+            WMWorkspace* workspace = (WMWorkspace*)curr_2;
+
+            List* curr_3 = &workspace->windows_list;
+            while (curr_3->next){
+                curr_3 = curr_3->next;
+                WMWindow* curr_window = (WMWindow*)curr_3;
+
+                if (curr_window == window){
+                    return workspace;
+                }
+            }
+        }
+    }
+    return NULL;
+}
+
+WMMonitor* get_monitor_by_workspace(WMWorkspace* workspace){
+    List* curr_1 = &wm.monitors_list;
+    while (curr_1->next){
+        curr_1 = curr_1->next;
+        WMMonitor* monitor = (WMMonitor*)curr_1;
+
+        List* curr_2 = &monitor->workspaces_list;
+        while (curr_2->next){
+            curr_2 = curr_2->next;
+            WMWorkspace* curr_workspace = (WMWorkspace*)curr_2;
+
+            if (curr_workspace == workspace){
+                return monitor;
+            }
+        }
+    }
+
+    return NULL;
+}
+
+WMWorkspace* get_workspace_by_number(int number){
+    WMWorkspace* found_workspace = NULL;
+    List* curr_1 = &wm.monitors_list;
+    while (curr_1->next){
+        curr_1 = curr_1->next;
+        WMMonitor* monitor = (WMMonitor*)curr_1;
+
+        List* curr_2 = &monitor->workspaces_list;
+        while (curr_2->next){
+            curr_2 = curr_2->next;
+            WMWorkspace* workspace = (WMWorkspace*)curr_2;
+
+            if (workspace->number == number){
+                found_workspace = workspace;
+            }
+        }
+    }
+    return found_workspace;
+}
+
+int next_workspace_number(){
+    int found_number = 1;
+    int prev_found_number = found_number;
+
+    while (found_number != prev_found_number){
+        prev_found_number = found_number;
+
+        List* curr_1 = &wm.monitors_list;
+        while (curr_1->next){
+            curr_1 = curr_1->next;
+            WMMonitor* monitor = (WMMonitor*)curr_1;
+
+            List* curr_2 = &monitor->workspaces_list;
+            while (curr_2->next){
+                curr_2 = curr_2->next;
+                WMWorkspace* workspace = (WMWorkspace*)curr_2;
+
+                if (workspace->number == found_number){
+                    found_number++;
+                }
+            }
+        }
+    }
+    return found_number;
 }
 
 // -----------------------------------------------------
@@ -149,10 +242,14 @@ void on_unmap_notify(XEvent* e){
     WMWorkspace* workspace = get_workspace_by_window(window);
     ASSERT(workspace, "window manager could not find workspace.\n");
 
+    WMMonitor* monitor = get_monitor_by_workspace(workspace);
+    ASSERT(monitor, "window manager could not find monitor.\n");
+
     ret = workspace_del_window(workspace, window);
     ASSERT(ret == 0, "failed to remove window from workspace.\n");
 
     window_destroy(window);
+
 
     // focus the new window in case we remove from
     // active workspace
@@ -164,31 +261,38 @@ void on_unmap_notify(XEvent* e){
                                 WINDOW, 
                                 wm.focused_window_color.pixel);
         }
+    }else{
+        if (workspace_empty(workspace)){
+            ret = monitor_del_workspace(monitor, workspace);
+            ASSERT(ret == 0, "failed to delete workspace from monitor.\n");
+
+            workspace_destroy(workspace);
+        }
     }
 
 fail:
     return;
 }
 void on_configure_notify(XEvent* e){
-    int ret;
-    int i;
+    // int ret;
+    // int i;
     XConfigureEvent* event = &e->xconfigure;
 
     if (event->window != wm.root_window){
         return;
     }
 
-    // resize screen.
-    for (i = 0; i < NUM_OF_WORKSPACES; i++){
-        ret = workspace_resize( wm.display, 
-                                &wm.workspaces[i],
-                                (unsigned int)event->width,
-                                (unsigned int)event->height);
+    // // resize screen.
+    // for (i = 0; i < NUM_OF_WORKSPACES; i++){
+        // ret = workspace_resize( wm.display, 
+                                // &wm.workspaces[i],
+                                // (unsigned int)event->width,
+                                // (unsigned int)event->height);
 
-        ASSERT(ret == 0, "failed resizing workspace.\n");
-    }
+        // ASSERT(ret == 0, "failed resizing workspace.\n");
+    // }
 
-fail:
+// fail:
     return;
 }
 
@@ -250,14 +354,8 @@ void arrange(Args* args){
 void switch_workspace(Args* args){
     int ret;
 
-    if ((args->i < 0) || args->i >= NUM_OF_WORKSPACES){
-        ASSERT(FALSE, "failed to switch workspace i = %d\n", args->i);
-    }
-
-    // we already at the correct workspace
-    if (wm.current_workspace_index == args->i){
-        return;
-    }
+    ret = workspace_hide(wm.display, WORKSPACE);
+    ASSERT(ret == 0, "failed to hide workspace\n");
 
     if (WINDOW){ // only if there is a window.
         ret = window_unfocus(   wm.display, 
@@ -267,10 +365,22 @@ void switch_workspace(Args* args){
         ASSERT(ret == 0, "failed to unfocus prev window.\n");
     }
 
-    ret = workspace_hide(wm.display, WORKSPACE);
-    ASSERT(ret == 0, "failed to hide workspace\n");
+    WMWorkspace* workspace = get_workspace_by_number(args->i);
+    // if workspace is not exist create it.
+    if (workspace == NULL){
+        workspace = workspace_create(   next_workspace_number(), 
+                                        MONITOR->x,
+                                        MONITOR->y,
+                                        MONITOR->width,
+                                        MONITOR->height);
+        ASSERT(workspace, "failed to create a workspace.\n");
 
-    wm.current_workspace_index = args->i;
+        ret = monitor_add_workspace(MONITOR, workspace);
+        ASSERT(ret == 0, "failed adding workspace to monitor.\n");
+    }
+
+    // MONITOR->focused_workspace = workspace;
+    // wm.current_workspace_index = args->i;
 
     ret = workspace_show(wm.display, WORKSPACE);
     ASSERT(ret == 0, "failed to show workspace\n");
@@ -603,26 +713,25 @@ int monitors_setup(){
     int ret;
     int i;
 
+    wm.monitors_list.prev = NULL;
+    wm.monitors_list.next = NULL;
+
     ASSERT(XineramaIsActive(wm.display), "Xinerama is not active.\n");
 
     XineramaScreenInfo* info = XineramaQueryScreens(wm.display, &num_of_monitors);
-
     for (i = 0; i < num_of_monitors; i++){
-        Monitor* monitor = NULL;
-
-        monitor = (Monitor*)malloc(sizeof(Monitor));
+        WMMonitor* monitor = monitor_create((int)info[i].x_org,
+                                            (int)info[i].y_org,
+                                            (unsigned int)info[i].width,
+                                            (unsigned int)info[i].height);
         ASSERT(monitor, "failed to add monitor to wm.\n");
-
-        monitor->x = info[i].x_org;
-        monitor->y = info[i].y_org;
-        monitor->width = info[i].width;
-        monitor->height = info[i].height;
 
         ret = list_add_tail(&wm.monitors_list, &monitor->list);
         ASSERT(ret == 0, "failed to add monitor to wm.\n");
     }
-
     XFree(info);
+
+    wm.focused_monitor = (WMMonitor*) wm.monitors_list.next;
 
     return 0;
 
@@ -632,11 +741,11 @@ fail:
 
 int initialize_wm(){
     int ret;
-    int i;
-
     wm.to_exit = 0;
 
     XSetErrorHandler(x_on_error);
+
+    create_colors();
 
     ret = register_key_events();
     ASSERT(ret == 0, "failed to register to key events\n");
@@ -648,39 +757,24 @@ int initialize_wm(){
                     PropertyChangeMask          |
                     StructureNotifyMask);
 
-    // Initialize the workspaces!!
+    // Initialize the monitors
     monitors_setup();
 
-    // unused variables
-    Window returned_root;
-    int x, y;
-    unsigned int border_width;
-    unsigned int depth;
+    List* curr = &wm.monitors_list;
+    while(curr->next){
+        curr = curr->next;
+        WMMonitor* monitor = (WMMonitor*) curr;
 
-    unsigned int screen_width = 0;
-    unsigned int screen_height = 0;
+        WMWorkspace* workspace = workspace_create(  next_workspace_number(),
+                                                    monitor->x,
+                                                    monitor->y,
+                                                    monitor->width,
+                                                    monitor->height);
+        ASSERT(workspace, "failed to create a workspace.\n");
 
-    ret = XGetGeometry( wm.display, 
-                        wm.root_window,
-                        &returned_root,
-                        &x, &y,
-                        &screen_width, &screen_height,
-                        &border_width,
-                        &depth);
-    ASSERT(ret, "failed to get screen geometry\n");
-
-    // the first workspace will be 1 not 0.
-    wm.current_workspace_index = 1; 
-    for (i = 0; i < NUM_OF_WORKSPACES; i++){
-
-        ret = workspace_init(   &wm.workspaces[i],
-                                screen_width,
-                                screen_height);
-
-        ASSERT(ret == 0, "failed to init workspaces.\n");
+        ret = monitor_add_workspace(monitor, workspace);
+        ASSERT(ret == 0, "failed to add workspace to monitor.\n");
     }
-    create_colors();
-
     return 0;
 
 fail:

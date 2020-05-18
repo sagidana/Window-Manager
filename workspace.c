@@ -3,6 +3,35 @@
 #include "point.h"
 
 
+WMWorkspace* workspace_create(  int number, 
+                                int x,
+                                int y,
+                                unsigned width,
+                                unsigned height){
+    WMWorkspace* workspace = NULL;
+
+    workspace = (WMWorkspace*)malloc(sizeof(WMWorkspace));
+    ASSERT(workspace, "failed to create workspace\n");
+
+    workspace->list.next = NULL;
+    workspace->list.prev = NULL;
+    workspace->windows_list.next = NULL;
+    workspace->windows_list.prev = NULL;
+
+    workspace->number = number;
+    workspace->x = x;
+    workspace->y = y;
+    workspace->width = width;
+    workspace->height = height;
+
+fail:
+    return workspace;
+}
+
+void workspace_destroy(WMWorkspace* workspace){
+    free(workspace);
+}
+
 int workspace_init( WMWorkspace* workspace, 
                     unsigned int width, 
                     unsigned int height){
@@ -14,6 +43,10 @@ int workspace_init( WMWorkspace* workspace,
     workspace->width = width;
 
     return 0;
+}
+
+int workspace_empty(WMWorkspace* workspace){
+    return LIST_EMPTY(&workspace->windows_list);
 }
 
 int workspace_resize(   Display* display, 
