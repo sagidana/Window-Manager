@@ -1,7 +1,7 @@
 X11INC = /usr/X11R6/include
 X11LIB = /usr/X11R6/lib
 
-LIBS = -L${X11LIB} -lX11 -lm
+LIBS = -L${X11LIB} -lX11 -lm -lXinerama
 INCS = -I${X11INC}
 
 CC = cc

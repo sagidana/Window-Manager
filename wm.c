@@ -1,10 +1,10 @@
-#include "wm.h"
-
 #include <stdio.h>      
 #include <stdlib.h>     
 #include <unistd.h>     
 #include <errno.h>
+#include <X11/extensions/Xinerama.h> // multi-monitor
 
+#include "wm.h"
 #include "arrange.h"
 
 
@@ -598,6 +598,38 @@ fail:
     return -1;
 }
 
+int monitors_setup(){
+    int num_of_monitors;
+    int ret;
+    int i;
+
+    ASSERT(XineramaIsActive(wm.display), "Xinerama is not active.\n");
+
+    XineramaScreenInfo* info = XineramaQueryScreens(wm.display, &num_of_monitors);
+
+    for (i = 0; i < num_of_monitors; i++){
+        Monitor* monitor = NULL;
+
+        monitor = (Monitor*)malloc(sizeof(Monitor));
+        ASSERT(monitor, "failed to add monitor to wm.\n");
+
+        monitor->x = info[i].x_org;
+        monitor->y = info[i].y_org;
+        monitor->width = info[i].width;
+        monitor->height = info[i].height;
+
+        ret = list_add_tail(&wm.monitors_list, &monitor->list);
+        ASSERT(ret == 0, "failed to add monitor to wm.\n");
+    }
+
+    XFree(info);
+
+    return 0;
+
+fail:
+    return -1;
+}
+
 int initialize_wm(){
     int ret;
     int i;
@@ -615,6 +647,9 @@ int initialize_wm(){
                     SubstructureNotifyMask      |
                     PropertyChangeMask          |
                     StructureNotifyMask);
+
+    // Initialize the workspaces!!
+    monitors_setup();
 
     // unused variables
     Window returned_root;

@@ -7,12 +7,24 @@
 #include "common.h"
 #include "workspace.h"
 #include "window.h"
+#include "list.h"
 
+
+typedef struct{
+    List list;
+
+    short x;
+    short y;
+    short width;
+    short height;
+}Monitor;
 
 typedef struct{
     Display* display;
     Window root_window;
     int to_exit;
+
+    List monitors_list;
 
     WMWorkspace workspaces[NUM_OF_WORKSPACES];
     int current_workspace_index;
