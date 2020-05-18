@@ -401,8 +401,13 @@ fail:
 }
 
 void kill(Args* args){
+    ASSERT(WINDOW, "not window to kill.\n");
+
     XDestroyWindow(wm.display, WINDOW->x_window);
     XSync(wm.display, FALSE);
+
+fail:
+    return;
 }
 
 void spawn(Args* args){
