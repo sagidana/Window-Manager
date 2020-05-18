@@ -83,7 +83,7 @@ int workspace_show(Display* display, WMWorkspace* workspace){
         // the List* to WMWindow*
         WMWindow* curr_window = (WMWindow*) curr;
 
-        ret = window_show(display, curr_window);
+        ret = window_show(display, curr_window, workspace->x, workspace->y);
         ASSERT(ret == 0, "failed to show window\n");
     }
 

@@ -182,13 +182,13 @@ fail:
     return -1;
 }
 
-int window_show(Display* display, WMWindow* window){
+int window_show(Display* display, WMWindow* window, int relative_x, int relative_y){
     int ret;
 
     ret = window_reconfigure(display, 
                              window,
-                             window->x,
-                             window->y,
+                             window->x + relative_x,
+                             window->y + relative_y,
                              window->width,
                              window->height);
 

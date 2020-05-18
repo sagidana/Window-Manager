@@ -131,7 +131,7 @@ WMWorkspace* get_workspace_by_number(int number){
 
 int next_workspace_number(){
     int found_number = 1;
-    int prev_found_number = found_number;
+    int prev_found_number = -1;
 
     while (found_number != prev_found_number){
         prev_found_number = found_number;
@@ -355,8 +355,6 @@ void arrange(Args* args){
 void switch_workspace(Args* args){
     int ret;
 
-    ret = workspace_hide(wm.display, WORKSPACE);
-    ASSERT(ret == 0, "failed to hide workspace\n");
 
     if (WINDOW){ // only if there is a window.
         ret = window_unfocus(   wm.display, 
@@ -376,14 +374,25 @@ void switch_workspace(Args* args){
                                         MONITOR->height);
         ASSERT(workspace, "failed to create a workspace.\n");
 
+        ret = workspace_hide(wm.display, WORKSPACE);
+        ASSERT(ret == 0, "failed to hide workspace\n");
 
         ret = monitor_add_workspace(MONITOR, workspace);
         ASSERT(ret == 0, "failed adding workspace to monitor.\n");
 
     // if workspace exist change to focused
     }else{
-        ret = monitor_focus_workspace(MONITOR, workspace);
+        WMMonitor* next_monitor = get_monitor_by_workspace(workspace);
+        ASSERT(next_monitor, "failed to get monitor from workspace.\n");
+
+        ret = workspace_hide(wm.display, next_monitor->focused_workspace);
+        ASSERT(ret == 0, "failed to hide workspace\n");
+
+        ret = monitor_focus_workspace(next_monitor, workspace);
         ASSERT(ret == 0, "failed to focus workspace\n");
+
+        // might not changed
+        wm.focused_monitor = next_monitor;
     }
 
     ret = workspace_show(wm.display, WORKSPACE);
@@ -840,8 +849,9 @@ void main_event_loop(){
 }
 
 int main(){
-    if (start())
-        return -1;
+    int ret;
+    ret = start();
+    ASSERT(ret == 0, "failed to start wm.\n");
 
     LOG("wm has started!\n");
 
@@ -849,4 +859,7 @@ int main(){
 
     LOG("wm has finished!\n");
     return end();
+
+fail:
+    return ret;
 }

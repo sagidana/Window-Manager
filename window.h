@@ -52,6 +52,6 @@ int window_update(Display* display, WMWindow* window);
 
 // we hide the window by moving it outside of the screen?
 int window_hide(Display* display, WMWindow* window);
-int window_show(Display* display, WMWindow* window);
+int window_show(Display* display, WMWindow* window, int relative_x, int relative_y);
 
 #endif

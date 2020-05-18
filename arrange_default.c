@@ -109,8 +109,8 @@ int default_on_new_window(  WMWorkspace* workspace,
     if (get_num_of_windows(workspace) == 0){ 
         window->x = 0 + GAP;
         window->y = 0 + GAP;
-        window->width = workspace->width - GAP;
-        window->height = workspace->height - GAP;
+        window->width = workspace->width - GAP - (BORDER_WIDTH * 2);
+        window->height = workspace->height - GAP - (BORDER_WIDTH * 2);
 
         return 0;
     }
