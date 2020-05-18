@@ -11,6 +11,7 @@ typedef struct{
     List workspaces_list;
     WMWorkspace* focused_workspace;
 
+    int number;
     int x;
     int y;
     unsigned int width;
@@ -18,7 +19,7 @@ typedef struct{
 
 }WMMonitor;
 
-WMMonitor* monitor_create(int x, int y, unsigned int width, unsigned height);
+WMMonitor* monitor_create(int number, int x, int y, unsigned int width, unsigned height);
 void monitor_destroy(WMMonitor* monitor);
 
 int monitor_add_workspace(WMMonitor* monitor, WMWorkspace* workspace);

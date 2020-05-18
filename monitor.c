@@ -1,7 +1,7 @@
 #include "monitor.h"
 
 
-WMMonitor* monitor_create(int x, int y, unsigned int width, unsigned height){
+WMMonitor* monitor_create(int number, int x, int y, unsigned int width, unsigned height){
     WMMonitor* monitor = NULL;
 
     monitor = (WMMonitor*) malloc(sizeof(WMMonitor));
@@ -9,6 +9,7 @@ WMMonitor* monitor_create(int x, int y, unsigned int width, unsigned height){
 
     monitor->workspaces_list.prev = NULL;
     monitor->workspaces_list.next = NULL;
+    monitor->number = number;
     monitor->x = x;
     monitor->y = y;
     monitor->width = width;

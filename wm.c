@@ -275,25 +275,16 @@ fail:
     return;
 }
 void on_configure_notify(XEvent* e){
-    // int ret;
-    // int i;
     XConfigureEvent* event = &e->xconfigure;
 
     if (event->window != wm.root_window){
         return;
     }
 
-    // // resize screen.
-    // for (i = 0; i < NUM_OF_WORKSPACES; i++){
-        // ret = workspace_resize( wm.display, 
-                                // &wm.workspaces[i],
-                                // (unsigned int)event->width,
-                                // (unsigned int)event->height);
+    // TODO: dynamic adjust to changes in layout:
+    // - change in number of monitors
+    // - change in size of monitors
 
-        // ASSERT(ret == 0, "failed resizing workspace.\n");
-    // }
-
-// fail:
     return;
 }
 
@@ -319,7 +310,7 @@ static void (*event_handlers[LASTEvent]) (XEvent *) = {
 };
 
 int x_on_error(Display* display, XErrorEvent* e){
-    // TODO:
+    LOG("x_on_erro()\n");
 
     return 0;
 }
@@ -416,6 +407,17 @@ void kill(Args* args){
 
 void spawn(Args* args){
     char** argv = (char**)args->ptr;
+
+    char dmenu_mon_string[] = "0";
+
+    // in case of dmenu. change the monitor the dmenu appears in
+    if ((char**)dmenucmd == argv){
+        LOG("dmenu is called.\n");
+        dmenu_mon_string[0] = (char)(0x30 + MONITOR->number);
+        argv[2] = dmenu_mon_string;
+
+        LOG("dmenu is %s.\n", argv[2]);
+    }
 
     int ret = fork();
     if (ret == 0){   // i am the child
@@ -733,7 +735,8 @@ int monitors_setup(){
 
     XineramaScreenInfo* info = XineramaQueryScreens(wm.display, &num_of_monitors);
     for (i = 0; i < num_of_monitors; i++){
-        WMMonitor* monitor = monitor_create((int)info[i].x_org,
+        WMMonitor* monitor = monitor_create(i,
+                                            (int)info[i].x_org,
                                             (int)info[i].y_org,
                                             (unsigned int)info[i].width,
                                             (unsigned int)info[i].height);
