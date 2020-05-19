@@ -2,6 +2,7 @@
 #include <stdlib.h>     
 #include <unistd.h>     
 #include <errno.h>
+#include <X11/Xatom.h>
 #include <X11/extensions/Xinerama.h> // multi-monitor
 
 #include "wm.h"
@@ -154,6 +155,8 @@ int next_workspace_number(){
     }
     return found_number;
 }
+
+int send_event(WMWindow* window, Atom proto);
 
 // -----------------------------------------------------
 // events callbacks
@@ -401,12 +404,37 @@ fail:
 }
 
 void kill(Args* args){
+    int ret;
     ASSERT(WINDOW, "not window to kill.\n");
 
-    XDestroyWindow(wm.display, WINDOW->x_window);
-    XSync(wm.display, FALSE);
+    Atom protocol = XInternAtom(    wm.display,
+                                    "WM_DELETE_WINDOW",
+                                    FALSE);
+    ret = send_event(WINDOW, protocol);
+    ASSERT(ret == 0, "failed to send delete event to client.\n");
+
+    return;
 
 fail:
+    // force killing the window when cannot send delete event.
+
+    // lock the x server for changes
+    XGrabServer(wm.display);
+
+    // XSetErrorHandler(x_on_error_empty);
+
+    // copied from dwm because of defunct problem.
+    // TODO: understand better.
+    XSetCloseDownMode(wm.display, DestroyAll);
+
+    // XDestroyWindow(wm.display, WINDOW->x_window);
+    XKillClient(wm.display, WINDOW->x_window);
+
+    XSync(wm.display, FALSE);
+
+    // XSetErrorHandler(x_on_error);
+
+    XUngrabServer(wm.display);
     return;
 }
 
@@ -664,6 +692,44 @@ fail:
 }
 
 // -----------------------------------------------------
+
+int send_event(WMWindow* window, Atom protocol){
+    int ret;
+    int found = 0;
+    int num_of_protocols;
+    Atom* protocols;
+
+    // search protocol in target client.
+    ret = XGetWMProtocols(wm.display, window->x_window, &protocols, &num_of_protocols);
+    if (ret){
+        while (num_of_protocols--){
+            if (protocols[num_of_protocols] == protocol){
+                found = 1;
+            }
+        }
+        XFree(protocols);
+    }
+    ASSERT(found, "protocol not found in target client.\n");
+
+    XEvent event;
+    event.type = ClientMessage;
+    event.xclient.window = window->x_window;
+    event.xclient.message_type = XInternAtom(wm.display, "WM_PROTOCOLS", FALSE);
+    event.xclient.format = 32;
+    event.xclient.data.l[0] = protocol;
+    event.xclient.data.l[1] = CurrentTime;
+
+    XSendEvent( wm.display, 
+                window->x_window, 
+                FALSE, 
+                NoEventMask, 
+                &event);
+
+    return 0;
+
+fail:
+    return -1;
+}
 
 int unregister_key_event(){
     int ret;
