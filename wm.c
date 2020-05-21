@@ -780,8 +780,6 @@ int create_colors(){
     ASSERT(ret, "failed to parse color.\n");
     ret = XParseColor(wm.display, colormap, normal_window_color, &wm.normal_window_color);
     ASSERT(ret, "failed to parse color.\n");
-    // XParseColor(wm.display, colormap, "rgb:cc/cc/cc", &wm.focused_window_color);
-    // XParseColor(wm.display, colormap, "rgb:22/22/22", &wm.normal_window_color);
 
     ret = XAllocColor(wm.display, colormap, &wm.focused_window_color);
     ASSERT(ret, "failed to alloc color.\n");
@@ -792,6 +790,23 @@ int create_colors(){
 
 fail:
     return -1;
+}
+
+int destroy_colors(){
+    int screen = DefaultScreen(wm.display);
+    Colormap colormap = DefaultColormap(wm.display, screen);
+
+    XFreeColors(wm.display, 
+                colormap,
+                &wm.focused_window_color.pixel,
+                1,
+                0);
+    XFreeColors(wm.display, 
+                colormap,
+                &wm.normal_window_color.pixel,
+                1,
+                0);
+    return 0;
 }
 
 int monitors_setup(){
@@ -889,8 +904,9 @@ fail:
 
 int end(){
     int ret;
-    unregister_key_event();
 
+    destroy_colors();
+    unregister_key_event();
     XCloseDisplay(wm.display);
 
     wm.display = NULL;
