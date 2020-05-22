@@ -161,7 +161,9 @@ int send_event(WMWindow* window, Atom proto);
 // -----------------------------------------------------
 // events callbacks
 // -----------------------------------------------------
-void on_default(XEvent* e){}
+
+void on_default(XEvent* e){
+}
 
 void on_configure_request(XEvent* e){
     // currently just forward the request
@@ -277,6 +279,7 @@ void on_unmap_notify(XEvent* e){
 fail:
     return;
 }
+
 void on_configure_notify(XEvent* e){
     XConfigureEvent* event = &e->xconfigure;
 
@@ -463,6 +466,7 @@ void spawn(Args* args){
         exit(0);
     }
 }
+
 void to_exit(Args* args){
     // trigger wm to exit.
     wm.to_exit = 1; 
@@ -571,7 +575,6 @@ void focus_down(Args* args){
 fail:
     return;
 }
-
 
 void move_left(Args* args){
     ASSERT(WINDOW, "no window to move\n");

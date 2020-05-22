@@ -473,8 +473,8 @@ int default_on_fullscreen_toggle(WMWorkspace* workspace){
 
             workspace->focused_window->x = 0 + GAP;
             workspace->focused_window->y = 0 + GAP;
-            workspace->focused_window->width = workspace->width - GAP;
-            workspace->focused_window->height = workspace->height - GAP;
+            workspace->focused_window->width = workspace->width - (GAP * 2);
+            workspace->focused_window->height = workspace->height - (GAP * 2);
         }
         SET_MODE(FULLSCREEN_MODE);
     }
