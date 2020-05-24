@@ -435,7 +435,6 @@ fail:
     // TODO: understand better.
     XSetCloseDownMode(wm.display, DestroyAll);
 
-    // XDestroyWindow(wm.display, WINDOW->x_window);
     XKillClient(wm.display, WINDOW->x_window);
 
     XSync(wm.display, FALSE);

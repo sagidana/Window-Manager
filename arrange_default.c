@@ -87,7 +87,9 @@ WMWindow* find_mergable(WMWorkspace* workspace, WMWindow* window){
 #define SET_MODE(x)      (state.mode |= x)
 #define SET_NO_MODE(x)   (state.mode &= (~x))
 
-#define IS_WORKSPACE_MODE(x)        (((WorkspaceState*) workspace->arrange_context)->mode & x)
+#define IS_WORKSPACE_MODE(x)        ((workspace->arrange_context) && \
+                                    (((WorkspaceState*) workspace->arrange_context)->mode & x))
+
 #define SET_WORKSPACE_MODE(x)       (((WorkspaceState*) workspace->arrange_context)->mode |= x)
 #define SET_WORKSPACE_NO_MODE(x)    (((WorkspaceState*) workspace->arrange_context)->mode &= (~x))
 
@@ -152,6 +154,17 @@ fail:
 
 int default_on_del_window(  WMWorkspace* workspace,
                             WMWindow* window){
+
+    if (IS_WORKSPACE_MODE(FULLSCREEN_MODE)){
+        // restore to default values.
+        ((WorkspaceState*) workspace->arrange_context)->prev_x = -1;
+        ((WorkspaceState*) workspace->arrange_context)->prev_y = -1;
+        ((WorkspaceState*) workspace->arrange_context)->prev_width = 0;
+        ((WorkspaceState*) workspace->arrange_context)->prev_height = 0;
+
+        SET_WORKSPACE_NO_MODE(FULLSCREEN_MODE);
+    }
+
     // last window - nothing to do.
     if (get_num_of_windows(workspace) == 1){
         return 0;
