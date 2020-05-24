@@ -14,6 +14,8 @@ typedef struct{
     int y;
     unsigned int width;
     unsigned int height;
+
+    void* arrange_context;
 }WMWorkspace;
 
 WMWorkspace* workspace_create(  int number, 

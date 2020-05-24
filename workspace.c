@@ -2,6 +2,8 @@
 #include "arrange.h"
 #include "point.h"
 
+#include <string.h>
+
 
 WMWorkspace* workspace_create(  int number, 
                                 int x,
@@ -12,6 +14,7 @@ WMWorkspace* workspace_create(  int number,
 
     workspace = (WMWorkspace*)malloc(sizeof(WMWorkspace));
     ASSERT(workspace, "failed to create workspace\n");
+    memset(workspace, 0, sizeof(WMWorkspace));
 
     workspace->list.next = NULL;
     workspace->list.prev = NULL;
@@ -26,11 +29,16 @@ WMWorkspace* workspace_create(  int number,
     workspace->width = width;
     workspace->height = height;
 
+    workspace->arrange_context = NULL;
+
 fail:
     return workspace;
 }
 
 void workspace_destroy(WMWorkspace* workspace){
+    if (workspace->arrange_context){
+        free(workspace->arrange_context);
+    }
     free(workspace);
 }
 

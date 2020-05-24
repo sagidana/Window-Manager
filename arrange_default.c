@@ -1,5 +1,7 @@
 #include "arrange_default.h"
+
 #include <X11/keysym.h> 
+#include <string.h>
 
 
 // ---------------------------------------------------------
@@ -85,6 +87,15 @@ WMWindow* find_mergable(WMWorkspace* workspace, WMWindow* window){
 #define SET_MODE(x)      (state.mode |= x)
 #define SET_NO_MODE(x)   (state.mode &= (~x))
 
+#define IS_WORKSPACE_MODE(x)        (((WorkspaceState*) workspace->arrange_context)->mode & x)
+#define SET_WORKSPACE_MODE(x)       (((WorkspaceState*) workspace->arrange_context)->mode |= x)
+#define SET_WORKSPACE_NO_MODE(x)    (((WorkspaceState*) workspace->arrange_context)->mode &= (~x))
+
+typedef struct{
+    unsigned int mode;
+
+}State;
+
 typedef struct{
     unsigned int mode;
     int prev_x;
@@ -92,14 +103,10 @@ typedef struct{
     unsigned int prev_width;
     unsigned int prev_height;
 
-}State;
+}WorkspaceState;
 
 State state = {
-    .mode = VERTICAL_MODE,
-    .prev_x = -1,
-    .prev_y = -1,
-    .prev_width = 0,
-    .prev_height = 0
+    .mode = VERTICAL_MODE
 };
 
 int default_on_new_window(  WMWorkspace* workspace,
@@ -449,41 +456,52 @@ int default_on_horizontal(WMWorkspace* workspace){
 }
 
 int default_on_fullscreen_toggle(WMWorkspace* workspace){
-    if (IS_MODE(FULLSCREEN_MODE)){
+    // create context when first needed.
+    if (workspace->arrange_context == NULL){
+        workspace->arrange_context = malloc(sizeof(WorkspaceState));
+        ASSERT(workspace->arrange_context, "failed to allocate arrange_context.\n");
+        memset(workspace->arrange_context, 0, sizeof(WorkspaceState));
+    }
+
+    if (IS_WORKSPACE_MODE(FULLSCREEN_MODE)){
         if (workspace->focused_window){
-            workspace->focused_window->x = state.prev_x;
-            workspace->focused_window->y = state.prev_y;
-            workspace->focused_window->width = state.prev_width;
-            workspace->focused_window->height = state.prev_height;
+            workspace->focused_window->x = ((WorkspaceState*) workspace->arrange_context)->prev_x;
+            workspace->focused_window->y = ((WorkspaceState*) workspace->arrange_context)->prev_y;
+            workspace->focused_window->width = ((WorkspaceState*) workspace->arrange_context)->prev_width;
+            workspace->focused_window->height = ((WorkspaceState*) workspace->arrange_context)->prev_height;
 
             // restore to default values.
-            state.prev_x = -1;
-            state.prev_y = -1;
-            state.prev_width = 0;
-            state.prev_height = 0;
+            ((WorkspaceState*) workspace->arrange_context)->prev_x = -1;
+            ((WorkspaceState*) workspace->arrange_context)->prev_y = -1;
+            ((WorkspaceState*) workspace->arrange_context)->prev_width = 0;
+            ((WorkspaceState*) workspace->arrange_context)->prev_height = 0;
         }
-        SET_NO_MODE(FULLSCREEN_MODE);
+        SET_WORKSPACE_NO_MODE(FULLSCREEN_MODE);
     }else{
         if (workspace->focused_window){
             // saving prev state
-            state.prev_x = workspace->focused_window->x;
-            state.prev_y = workspace->focused_window->y;
-            state.prev_width = workspace->focused_window->width;
-            state.prev_height = workspace->focused_window->height;
+            ((WorkspaceState*) workspace->arrange_context)->prev_x = workspace->focused_window->x;
+            ((WorkspaceState*) workspace->arrange_context)->prev_y = workspace->focused_window->y;
+            ((WorkspaceState*) workspace->arrange_context)->prev_width = workspace->focused_window->width;
+            ((WorkspaceState*) workspace->arrange_context)->prev_height = workspace->focused_window->height;
 
             workspace->focused_window->x = 0 + GAP;
             workspace->focused_window->y = 0 + GAP;
             workspace->focused_window->width = workspace->width - (GAP * 2);
             workspace->focused_window->height = workspace->height - (GAP * 2);
         }
-        SET_MODE(FULLSCREEN_MODE);
+        SET_WORKSPACE_MODE(FULLSCREEN_MODE);
     }
     return 0;
+
+fail:
+    return -1;
 }
 
 int (*event_handlers[XK_nobreakspace]) (WMWorkspace *) = {
     [XK_V] = default_on_horizontal,
     [XK_1] = default_on_vertical,
+
     [XK_F] = default_on_fullscreen_toggle,
 
     [XK_H] = default_on_align_left,
