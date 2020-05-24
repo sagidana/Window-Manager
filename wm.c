@@ -352,6 +352,12 @@ void arrange(Args* args){
 void switch_workspace(Args* args){
     int ret;
 
+    WMWorkspace* workspace = get_workspace_by_number(args->i);
+    
+    // nothing to do.
+    if (workspace == WORKSPACE){
+        return;
+    }
 
     if (WINDOW){ // only if there is a window.
         ret = window_unfocus(   wm.display, 
@@ -361,7 +367,6 @@ void switch_workspace(Args* args){
         ASSERT(ret == 0, "failed to unfocus prev window.\n");
     }
 
-    WMWorkspace* workspace = get_workspace_by_number(args->i);
     // if workspace is not exist create it.
     if (workspace == NULL){
         workspace = workspace_create(   args->i, 

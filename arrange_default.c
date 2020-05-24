@@ -478,18 +478,29 @@ int default_on_fullscreen_toggle(WMWorkspace* workspace){
         }
         SET_WORKSPACE_NO_MODE(FULLSCREEN_MODE);
     }else{
-        if (workspace->focused_window){
-            // saving prev state
-            ((WorkspaceState*) workspace->arrange_context)->prev_x = workspace->focused_window->x;
-            ((WorkspaceState*) workspace->arrange_context)->prev_y = workspace->focused_window->y;
-            ((WorkspaceState*) workspace->arrange_context)->prev_width = workspace->focused_window->width;
-            ((WorkspaceState*) workspace->arrange_context)->prev_height = workspace->focused_window->height;
-
-            workspace->focused_window->x = 0 + GAP;
-            workspace->focused_window->y = 0 + GAP;
-            workspace->focused_window->width = workspace->width - (GAP * 2);
-            workspace->focused_window->height = workspace->height - (GAP * 2);
+        // no window to fullscreen -> do nothing.
+        if (workspace->focused_window == NULL){
+            return 0;
         }
+        // already fullscreen -> do nothing.
+        if ((workspace->focused_window->x == 0 + GAP) &&
+            (workspace->focused_window->y == 0 + GAP) &&
+            (workspace->focused_window->width == workspace->width - (GAP * 2)) &&
+            (workspace->focused_window->height == workspace->height - (GAP * 2))){
+            return 0;
+        }
+
+        // saving prev state
+        ((WorkspaceState*) workspace->arrange_context)->prev_x = workspace->focused_window->x;
+        ((WorkspaceState*) workspace->arrange_context)->prev_y = workspace->focused_window->y;
+        ((WorkspaceState*) workspace->arrange_context)->prev_width = workspace->focused_window->width;
+        ((WorkspaceState*) workspace->arrange_context)->prev_height = workspace->focused_window->height;
+
+        workspace->focused_window->x = 0 + GAP;
+        workspace->focused_window->y = 0 + GAP;
+        workspace->focused_window->width = workspace->width - (GAP * 2);
+        workspace->focused_window->height = workspace->height - (GAP * 2);
+
         SET_WORKSPACE_MODE(FULLSCREEN_MODE);
     }
     return 0;
