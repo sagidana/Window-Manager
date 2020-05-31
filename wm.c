@@ -171,6 +171,12 @@ void on_configure_request(XEvent* e){
     XConfigureRequestEvent* event = &e->xconfigurerequest;
     XWindowChanges changes;
 
+    WMWindow* found = get_wmwindow_by_x_window(event->window);
+    // do not let reconfigure already managed window.
+    if (found){
+        return;
+    }
+
     changes.x = event->x;
     changes.y = event->y;
     changes.width = event->width;
