@@ -419,11 +419,11 @@ void kill(Args* args){
                                     "WM_DELETE_WINDOW",
                                     FALSE);
     ret = send_event(WINDOW, protocol);
-    ASSERT(ret == 0, "failed to send delete event to client.\n");
+    ASSERT_TO(fail_to_kill, (ret == 0), "failed to send delete event to client.\n");
 
     return;
 
-fail:
+fail_to_kill:
     // force killing the window when cannot send delete event.
 
     // lock the x server for changes
@@ -442,6 +442,8 @@ fail:
     // XSetErrorHandler(x_on_error);
 
     XUngrabServer(wm.display);
+
+fail:
     return;
 }
 

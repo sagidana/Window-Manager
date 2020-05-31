@@ -463,6 +463,7 @@ int default_on_vertical(WMWorkspace* workspace){
     SET_MODE(VERTICAL_MODE);
     return 0;
 }
+
 int default_on_horizontal(WMWorkspace* workspace){
     SET_NO_MODE(VERTICAL_MODE);
     return 0;
