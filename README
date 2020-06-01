@@ -1,0 +1,22 @@
+
+to install:
+- compile
+- create shell script with the following content:
+""
+#! /bin/bash
+xsetroot -solid "#333333"
+exec /path/to/repo/wm
+""
+- create wm.desktop file in the "/usr/share/xsessions" path with the following content:
+""
+[Desktop Entry]
+Name=wm
+Comment=Window Manager
+Exec=/path/to/shell/script
+Type=Application
+X-LightDM-DesktopName=wm
+DesktopNames=wm
+Keywords=tiling;wm;windowmanager;window;manager;
+""
+- now Window manager can be used using the login manager menu.
+
