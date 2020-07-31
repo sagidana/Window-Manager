@@ -111,6 +111,11 @@ int tree_node_set_dimentions(TreeWindowNode* node,
 int tree_node_update(TreeWindowNode* node){
     // This node is a leaf
     if (node->node.children == NULL){
+        // nothing to update (when workspace is empty)
+        if (node->window == NULL){ 
+            return 0;
+        }
+
         node->window->x = node->x + GAP;
         node->window->y = node->y + GAP;
         node->window->width = node->width - (GAP * 2);
@@ -227,7 +232,7 @@ int add_children(TreeWindowNode* parent,
 
     // TODO: need to take into account resizes.
     int num_of_children = tree_num_of_direct_children(&parent->node);
-    LOG("num_of_children: %d\n", num_of_children);
+
     float precentage = 1.0 / ((float)num_of_children);
 
     Tree* head = parent->node.children;
@@ -235,7 +240,38 @@ int add_children(TreeWindowNode* parent,
     do{
         TreeWindowNode* current = (TreeWindowNode*)next;
 
-        LOG("setting precentage to: %f\n", precentage);
+        tree_node_set_precentage(current, precentage);
+
+        next = next->next;
+    }while(next != head);
+
+    return tree_node_update(parent);
+
+fail:
+    return -1;
+}
+
+int del_children(TreeWindowNode* node){
+    TreeWindowNode* parent = (TreeWindowNode*)node->node.parent;
+
+    ASSERT( (tree_del(&node->node) == 0), 
+            "failed to delete node from tree.\n");
+
+    // TODO: need to take into account resizes.
+    int num_of_children = tree_num_of_direct_children(&parent->node);
+
+    // nothing to do.
+    if (num_of_children == 0){
+        return 0;
+    }
+
+    float precentage = 1.0 / ((float)num_of_children);
+
+    Tree* head = parent->node.children;
+    Tree* next = head;
+    do{
+        TreeWindowNode* current = (TreeWindowNode*)next;
+
         tree_node_set_precentage(current, precentage);
 
         next = next->next;
@@ -315,8 +351,18 @@ fail:
 
 int tree_on_del_window(  WMWorkspace* workspace, 
                          WMWindow* window){
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "focused_window is not when deleting??\n");
+
+    TreeWindowNode* node = find_tree_node_by_window(( (ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                        workspace->focused_window);
+    ASSERT(node, "Wasn't able to find tree node for the focused window.\n");
+
+    ASSERT((del_children(node) == 0), "wasn't able to delete node from tree.\n");
 
     return 0;
+fail:
+    return -1;
 }
 
 // ---------------------------------------------------------------------------------
