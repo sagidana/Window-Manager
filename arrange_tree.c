@@ -419,6 +419,33 @@ fail:
 int tree_on_fullscreen_toggle(WMWorkspace* workspace){
     return 0;
 }
+
+int tree_on_move_left(WMWorkspace* workspace){
+    return 0;
+}
+int tree_on_move_down(WMWorkspace* workspace){
+    return 0;
+}
+int tree_on_move_up(WMWorkspace* workspace){
+    return 0;
+}
+int tree_on_move_right(WMWorkspace* workspace){
+    return 0;
+}
+
+int tree_on_focus_left(WMWorkspace* workspace){
+    return 0;
+}
+int tree_on_focus_down(WMWorkspace* workspace){
+    return 0;
+}
+int tree_on_focus_up(WMWorkspace* workspace){
+    return 0;
+}
+int tree_on_focus_right(WMWorkspace* workspace){
+    return 0;
+}
+
 int tree_on_align_left(WMWorkspace* workspace){
     return 0;
 }
@@ -431,6 +458,7 @@ int tree_on_align_up(WMWorkspace* workspace){
 int tree_on_align_right(WMWorkspace* workspace){
     return 0;
 }
+
 int tree_on_resize_left(WMWorkspace* workspace){
     return 0;
 }
@@ -444,21 +472,31 @@ int tree_on_resize_right(WMWorkspace* workspace){
     return 0;
 }
 
-int (*tree_event_handlers[XK_nobreakspace]) (WMWorkspace *) = {
-    [XK_V] = tree_on_horizontal,
-    [XK_1] = tree_on_vertical,
+int (*tree_event_handlers[30]) (WMWorkspace *) = {
+    [0] = tree_on_vertical,
+    [1] = tree_on_horizontal,
 
-    [XK_F] = tree_on_fullscreen_toggle,
+    [2] = tree_on_fullscreen_toggle,
 
-    [XK_H] = tree_on_align_left,
-    [XK_J] = tree_on_align_down,
-    [XK_K] = tree_on_align_up,
-    [XK_L] = tree_on_align_right,
+    [3] = tree_on_move_left,
+    [4] = tree_on_move_down,
+    [5] = tree_on_move_up,
+    [6] = tree_on_move_right,
 
-    [XK_Y] = tree_on_resize_left,
-    [XK_U] = tree_on_resize_down,
-    [XK_I] = tree_on_resize_up,
-    [XK_O] = tree_on_resize_right
+    [7] = tree_on_focus_left,
+    [8] = tree_on_focus_down,
+    [9] = tree_on_focus_up,
+    [10] = tree_on_focus_right,
+
+    [11] = tree_on_align_left,
+    [12] = tree_on_align_down,
+    [13] = tree_on_align_up,
+    [14] = tree_on_align_right,
+
+    [15] = tree_on_resize_left,
+    [16] = tree_on_resize_down,
+    [17] = tree_on_resize_up,
+    [18] = tree_on_resize_right
 };
 
 // one thing to note here.. 

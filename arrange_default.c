@@ -207,6 +207,176 @@ int default_on_del_window(  WMWorkspace* workspace,
     return 0;
 }
 
+
+int default_on_move_left(WMWorkspace* workspace){
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to move without a focused window.\n");
+
+    WMWindow* window = workspace_get_left_window(workspace);
+    ASSERT(window, "no window found.\n");
+
+    int x, y;
+    unsigned int width, height;
+
+    x = window->x;
+    y = window->y;
+    width = window->width;
+    height = window->height;
+
+    window->x = focused_window->x;
+    window->y = focused_window->y;
+    window->width = focused_window->width;
+    window->height = focused_window->height;
+
+    focused_window->x = x;
+    focused_window->y = y;
+    focused_window->width = width;
+    focused_window->height = height;
+
+fail:
+    return 0;
+}
+
+int default_on_move_down(WMWorkspace* workspace){
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to move without a focused window.\n");
+
+    WMWindow* window = workspace_get_down_window(workspace);
+    ASSERT(window, "no window found.\n");
+
+    int x, y;
+    unsigned int width, height;
+
+    x = window->x;
+    y = window->y;
+    width = window->width;
+    height = window->height;
+
+    window->x = focused_window->x;
+    window->y = focused_window->y;
+    window->width = focused_window->width;
+    window->height = focused_window->height;
+
+    focused_window->x = x;
+    focused_window->y = y;
+    focused_window->width = width;
+    focused_window->height = height;
+
+fail:
+    return 0;
+}
+
+int default_on_move_up(WMWorkspace* workspace){
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to move without a focused window.\n");
+
+    WMWindow* window = workspace_get_up_window(workspace);
+    ASSERT(window, "no window found.\n");
+
+    int x, y;
+    unsigned int width, height;
+
+    x = window->x;
+    y = window->y;
+    width = window->width;
+    height = window->height;
+
+    window->x = focused_window->x;
+    window->y = focused_window->y;
+    window->width = focused_window->width;
+    window->height = focused_window->height;
+
+    focused_window->x = x;
+    focused_window->y = y;
+    focused_window->width = width;
+    focused_window->height = height;
+
+fail:
+    return 0;
+}
+
+int default_on_move_right(WMWorkspace* workspace){
+    WMWindow* focused_window = workspace->focused_window;
+    ASSERT(focused_window, "trying to move without a focused window.\n");
+
+    WMWindow* window = workspace_get_right_window(workspace);
+    ASSERT(window, "no window found.\n");
+
+    int x, y;
+    unsigned int width, height;
+
+    x = window->x;
+    y = window->y;
+    width = window->width;
+    height = window->height;
+
+    window->x = focused_window->x;
+    window->y = focused_window->y;
+    window->width = focused_window->width;
+    window->height = focused_window->height;
+
+    focused_window->x = x;
+    focused_window->y = y;
+    focused_window->width = width;
+    focused_window->height = height;
+
+fail:
+    return 0;
+}
+
+int default_on_focus_left(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_left_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    workspace->focused_window = window; 
+
+    return 0;
+fail:
+    return -1;
+}
+
+int default_on_focus_down(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_down_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    workspace->focused_window = window; 
+
+    return 0;
+fail:
+    return -1;
+}
+
+int default_on_focus_up(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_up_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    workspace->focused_window = window; 
+
+    return 0;
+fail:
+    return -1;
+}
+
+int default_on_focus_right(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_right_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    workspace->focused_window = window; 
+
+    return 0;
+fail:
+    return -1;
+}
+
+
 // Align the focused window to the right direction.
 int default_on_align_left(WMWorkspace* workspace){
     WMWindow* window;
@@ -523,21 +693,31 @@ fail:
     return -1;
 }
 
-int (*event_handlers[XK_nobreakspace]) (WMWorkspace *) = {
-    [XK_V] = default_on_horizontal,
-    [XK_1] = default_on_vertical,
+int (*default_event_handlers[30]) (WMWorkspace *) = {
+    [0] = default_on_vertical,
+    [1] = default_on_horizontal,
 
-    [XK_F] = default_on_fullscreen_toggle,
+    [2] = default_on_fullscreen_toggle,
 
-    [XK_H] = default_on_align_left,
-    [XK_J] = default_on_align_down,
-    [XK_K] = default_on_align_up,
-    [XK_L] = default_on_align_right,
+    [3] = default_on_move_left,
+    [4] = default_on_move_down,
+    [5] = default_on_move_up,
+    [6] = default_on_move_right,
 
-    [XK_Y] = default_on_resize_left,
-    [XK_U] = default_on_resize_down,
-    [XK_I] = default_on_resize_up,
-    [XK_O] = default_on_resize_right
+    [7] = default_on_focus_left,
+    [8] = default_on_focus_down,
+    [9] = default_on_focus_up,
+    [10] = default_on_focus_right,
+
+    [11] = default_on_align_left,
+    [12] = default_on_align_down,
+    [13] = default_on_align_up,
+    [14] = default_on_align_right,
+
+    [15] = default_on_resize_left,
+    [16] = default_on_resize_down,
+    [17] = default_on_resize_up,
+    [18] = default_on_resize_right
 };
 
 // one thing to note here.. 
@@ -546,8 +726,8 @@ int (*event_handlers[XK_nobreakspace]) (WMWorkspace *) = {
 // configured in the wm.h configuration of the
 // keybindings.
 int default_on_key_press(int keysym, WMWorkspace* workspace){
-    if (event_handlers[keysym]){
-        return event_handlers[keysym](workspace);
+    if (default_event_handlers[keysym]){
+        return default_event_handlers[keysym](workspace);
     }
     return 0;
 }

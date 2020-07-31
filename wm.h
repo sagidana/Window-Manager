@@ -46,16 +46,6 @@ void kill(Args* args);
 void to_exit(Args* args);
 void switch_workspace(Args* args);
 void arrange(Args* args);
-
-void focus_left(Args* args);
-void focus_right(Args* args);
-void focus_up(Args* args);
-void focus_down(Args* args);
-
-void move_left(Args* args);
-void move_right(Args* args);
-void move_up(Args* args);
-void move_down(Args* args);
 // ------------------------------------------------------------------
 
 // ------------------------------------------------------------------
@@ -86,35 +76,39 @@ static Key wm_keys[] = {
 
     {MODKEY | ShiftMask,    XK_Q,           kill,             {.ptr = NULL,     .i = -1} },
 
+    // -------------------------------------------------------------------------------------
+    // Arrange bindings
+    // -------------------------------------------------------------------------------------
     // toggle vertical mode
-    {MODKEY,                XK_V,           arrange,          {.ptr = NULL,     .i = XK_V} },
-    {MODKEY | ShiftMask,    XK_V,           arrange,          {.ptr = NULL,     .i = XK_1} },
+    {MODKEY,                XK_V,           arrange,          {.ptr = NULL,     .i = 0} },
+    {MODKEY | ShiftMask,    XK_V,           arrange,          {.ptr = NULL,     .i = 1} },
     // toggle fullscreen mode
-    {MODKEY,                XK_F,           arrange,          {.ptr = NULL,     .i = XK_F} },
+    {MODKEY,                XK_F,           arrange,          {.ptr = NULL,     .i = 2} },
 
     // to move
-    {MODKEY | ShiftMask,    XK_H,           move_left,        {.ptr = NULL,     .i = -1} },
-    {MODKEY | ShiftMask,    XK_J,           move_down,        {.ptr = NULL,     .i = -1} },
-    {MODKEY | ShiftMask,    XK_K,           move_up,          {.ptr = NULL,     .i = -1} },
-    {MODKEY | ShiftMask,    XK_L,           move_right,       {.ptr = NULL,     .i = -1} },
+    {MODKEY | ShiftMask,    XK_H,           arrange,          {.ptr = NULL,     .i = 3} },
+    {MODKEY | ShiftMask,    XK_J,           arrange,          {.ptr = NULL,     .i = 4} },
+    {MODKEY | ShiftMask,    XK_K,           arrange,          {.ptr = NULL,     .i = 5} },
+    {MODKEY | ShiftMask,    XK_L,           arrange,          {.ptr = NULL,     .i = 6} },
 
     // for focus
-    {MODKEY,                XK_H,           focus_left,       {.ptr = NULL,     .i = -1} },
-    {MODKEY,                XK_J,           focus_down,       {.ptr = NULL,     .i = -1} },
-    {MODKEY,                XK_K,           focus_up,         {.ptr = NULL,     .i = -1} },
-    {MODKEY,                XK_L,           focus_right,      {.ptr = NULL,     .i = -1} },
+    {MODKEY,                XK_H,           arrange,          {.ptr = NULL,     .i = 7} },
+    {MODKEY,                XK_J,           arrange,          {.ptr = NULL,     .i = 8} },
+    {MODKEY,                XK_K,           arrange,          {.ptr = NULL,     .i = 9} },
+    {MODKEY,                XK_L,           arrange,          {.ptr = NULL,     .i = 10} },
 
     // for alignment
-    {MODKEY | Mod1Mask,     XK_H,           arrange,          {.ptr = NULL,     .i = XK_H} },
-    {MODKEY | Mod1Mask,     XK_J,           arrange,          {.ptr = NULL,     .i = XK_J} },
-    {MODKEY | Mod1Mask,     XK_K,           arrange,          {.ptr = NULL,     .i = XK_K} },
-    {MODKEY | Mod1Mask,     XK_L,           arrange,          {.ptr = NULL,     .i = XK_L} },
+    {MODKEY | Mod1Mask,     XK_H,           arrange,          {.ptr = NULL,     .i = 11} },
+    {MODKEY | Mod1Mask,     XK_J,           arrange,          {.ptr = NULL,     .i = 12} },
+    {MODKEY | Mod1Mask,     XK_K,           arrange,          {.ptr = NULL,     .i = 13} },
+    {MODKEY | Mod1Mask,     XK_L,           arrange,          {.ptr = NULL,     .i = 14} },
 
     // to resize
-    {MODKEY | ControlMask,  XK_H,           arrange,          {.ptr = NULL,     .i = XK_Y} },
-    {MODKEY | ControlMask,  XK_J,           arrange,          {.ptr = NULL,     .i = XK_U} },
-    {MODKEY | ControlMask,  XK_K,           arrange,          {.ptr = NULL,     .i = XK_I} },
-    {MODKEY | ControlMask,  XK_L,           arrange,          {.ptr = NULL,     .i = XK_O} },
+    {MODKEY | ControlMask,  XK_H,           arrange,          {.ptr = NULL,     .i = 15} },
+    {MODKEY | ControlMask,  XK_J,           arrange,          {.ptr = NULL,     .i = 16} },
+    {MODKEY | ControlMask,  XK_K,           arrange,          {.ptr = NULL,     .i = 17} },
+    {MODKEY | ControlMask,  XK_L,           arrange,          {.ptr = NULL,     .i = 18} },
+    // -------------------------------------------------------------------------------------
 
     {MODKEY,                XK_1,           switch_workspace, {.ptr = NULL,     .i = 1 } },
     {MODKEY,                XK_2,           switch_workspace, {.ptr = NULL,     .i = 2 } },

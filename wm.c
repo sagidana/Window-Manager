@@ -216,7 +216,11 @@ void on_map_request(XEvent* e){
     ret = workspace_add_window(WORKSPACE, window);
     ASSERT(ret == 0, "failed to add window to workspace.\n");
 
-    ret = workspace_show(wm.display, WORKSPACE);
+    ret = workspace_show(   WORKSPACE, 
+                            wm.display, 
+                            wm.root_window, 
+                            wm.normal_window_color.pixel,
+                            wm.focused_window_color.pixel);
     ASSERT(ret == 0, "failed to show workspace.\n");
 
     ret = window_focus( wm.display, 
@@ -265,7 +269,11 @@ void on_unmap_notify(XEvent* e){
     // focus the new window in case we remove from
     // active workspace
     if (IS_ACTIVE_WORKSPACE(workspace)){
-        ret = workspace_show(wm.display, WORKSPACE);
+        ret = workspace_show(   WORKSPACE, 
+                wm.display, 
+                wm.root_window, 
+                wm.normal_window_color.pixel,
+                wm.focused_window_color.pixel);
 
         if (WINDOW){
             ret = window_focus( wm.display, 
@@ -352,7 +360,11 @@ void detect_other_wm(){
 void arrange(Args* args){
     arrange_on_key_press(args->i, WORKSPACE);
 
-    workspace_show(wm.display, WORKSPACE);
+    workspace_show( WORKSPACE, 
+                    wm.display, 
+                    wm.root_window, 
+                    wm.normal_window_color.pixel,
+                    wm.focused_window_color.pixel);
 }
 
 void switch_workspace(Args* args){
@@ -403,7 +415,11 @@ void switch_workspace(Args* args){
         wm.focused_monitor = next_monitor;
     }
 
-    ret = workspace_show(wm.display, WORKSPACE);
+    ret = workspace_show(   WORKSPACE, 
+                            wm.display, 
+                            wm.root_window, 
+                            wm.normal_window_color.pixel,
+                            wm.focused_window_color.pixel);
     ASSERT(ret == 0, "failed to show workspace\n");
 
     if (WINDOW){ // only if there is a window.
@@ -482,228 +498,6 @@ void spawn(Args* args){
 void to_exit(Args* args){
     // trigger wm to exit.
     wm.to_exit = 1; 
-}
-
-void focus_left(Args* args){
-    int ret;
-
-    ASSERT(WINDOW, "no window to focus\n");
-
-    WMWindow* window = workspace_get_left_window(WORKSPACE);
-    ASSERT(window, "no window found.\n");
-
-    ret = window_unfocus(   wm.display, 
-                            wm.root_window, 
-                            WINDOW, 
-                            wm.normal_window_color.pixel);
-    ASSERT(ret == 0, "unable to unfocus window.\n");
-
-    // switch focused window
-    WORKSPACE->focused_window = window; 
-
-    ret = window_focus( wm.display, 
-                        WINDOW, 
-                        wm.focused_window_color.pixel);
-    ASSERT(ret == 0, "unable to focus window.\n");
-
-fail:
-    return;
-}
-
-void focus_right(Args* args){
-    int ret;
-
-    ASSERT(WINDOW, "no window to focus\n");
-
-    WMWindow* window = workspace_get_right_window(WORKSPACE);
-    ASSERT(window, "no window found.\n");
-
-    ret = window_unfocus(   wm.display, 
-                            wm.root_window, 
-                            WINDOW, 
-                            wm.normal_window_color.pixel);
-    ASSERT(ret == 0, "unable to unfocus window.\n");
-
-    // switch focused window
-    WORKSPACE->focused_window = window; 
-
-    ret = window_focus( wm.display, 
-                        WINDOW, 
-                        wm.focused_window_color.pixel);
-    ASSERT(ret == 0, "unable to focus window.\n");
-
-fail:
-    return;
-}
-
-void focus_up(Args* args){
-    int ret;
-
-    ASSERT(WINDOW, "no window to focus\n");
-
-    WMWindow* window = workspace_get_up_window(WORKSPACE);
-    ASSERT(window, "no window found.\n");
-
-    ret = window_unfocus(   wm.display, 
-                            wm.root_window, 
-                            WINDOW, 
-                            wm.normal_window_color.pixel);
-    ASSERT(ret == 0, "unable to unfocus window.\n");
-
-    // switch focused window
-    WORKSPACE->focused_window = window; 
-
-    ret = window_focus( wm.display, 
-                        WINDOW, 
-                        wm.focused_window_color.pixel);
-    ASSERT(ret == 0, "unable to focus window.\n");
-
-fail:
-    return;
-}
-
-void focus_down(Args* args){
-    int ret;
-
-    ASSERT(WINDOW, "no window to focus\n");
-
-    WMWindow* window = workspace_get_down_window(WORKSPACE);
-    ASSERT(window, "no window found.\n");
-
-    ret = window_unfocus(   wm.display, 
-                            wm.root_window, 
-                            WINDOW, 
-                            wm.normal_window_color.pixel);
-    ASSERT(ret == 0, "unable to unfocus window.\n");
-
-    // switch focused window
-    WORKSPACE->focused_window = window; 
-
-    ret = window_focus( wm.display, 
-                        WINDOW, 
-                        wm.focused_window_color.pixel);
-    ASSERT(ret == 0, "unable to focus window.\n");
-
-fail:
-    return;
-}
-
-void move_left(Args* args){
-    ASSERT(WINDOW, "no window to move\n");
-
-    WMWindow* window = workspace_get_left_window(WORKSPACE);
-    ASSERT(window, "no window found.\n");
-
-    int x, y;
-    unsigned int width, height;
-
-    x = window->x;
-    y = window->y;
-    width = window->width;
-    height = window->height;
-
-    window->x = WINDOW->x;
-    window->y = WINDOW->y;
-    window->width = WINDOW->width;
-    window->height = WINDOW->height;
-
-    WINDOW->x = x;
-    WINDOW->y = y;
-    WINDOW->width = width;
-    WINDOW->height = height;
-
-    workspace_show(wm.display, WORKSPACE);
-
-fail:
-    return;
-}
-
-void move_right(Args* args){
-    ASSERT(WINDOW, "no window to move\n");
-
-    WMWindow* window = workspace_get_right_window(WORKSPACE);
-    ASSERT(window, "no window found.\n");
-
-    int x, y;
-    unsigned int width, height;
-
-    x = window->x;
-    y = window->y;
-    width = window->width;
-    height = window->height;
-
-    window->x = WINDOW->x;
-    window->y = WINDOW->y;
-    window->width = WINDOW->width;
-    window->height = WINDOW->height;
-
-    WINDOW->x = x;
-    WINDOW->y = y;
-    WINDOW->width = width;
-    WINDOW->height = height;
-
-    workspace_show(wm.display, WORKSPACE);
-
-fail:
-    return;
-}
-
-void move_up(Args* args){
-    ASSERT(WINDOW, "no window to move\n");
-
-    WMWindow* window = workspace_get_up_window(WORKSPACE);
-    ASSERT(window, "no window found.\n");
-
-    int x, y;
-    unsigned int width, height;
-
-    x = window->x;
-    y = window->y;
-    width = window->width;
-    height = window->height;
-
-    window->x = WINDOW->x;
-    window->y = WINDOW->y;
-    window->width = WINDOW->width;
-    window->height = WINDOW->height;
-
-    WINDOW->x = x;
-    WINDOW->y = y;
-    WINDOW->width = width;
-    WINDOW->height = height;
-
-    workspace_show(wm.display, WORKSPACE);
-fail:
-    return;
-}
-
-void move_down(Args* args){
-
-    WMWindow* window = workspace_get_down_window(WORKSPACE);
-    ASSERT(window, "no window found.\n");
-
-    int x, y;
-    unsigned int width, height;
-
-    x = window->x;
-    y = window->y;
-    width = window->width;
-    height = window->height;
-
-    window->x = WINDOW->x;
-    window->y = WINDOW->y;
-    window->width = WINDOW->width;
-    window->height = WINDOW->height;
-
-    WINDOW->x = x;
-    WINDOW->y = y;
-    WINDOW->width = width;
-    WINDOW->height = height;
-
-    workspace_show(wm.display, WORKSPACE);
-    ASSERT(WINDOW, "no window to move\n");
-fail:
-    return;
 }
 
 // -----------------------------------------------------

@@ -78,7 +78,11 @@ fail:
     return -1;
 }
 
-int workspace_show(Display* display, WMWorkspace* workspace){
+int workspace_show( WMWorkspace* workspace,
+                    Display* display, 
+                    Window root_window, 
+                    unsigned long normal_pixel,
+                    unsigned long focused_pixel){
     int ret;
 
     List* curr = &workspace->windows_list;
@@ -93,6 +97,20 @@ int workspace_show(Display* display, WMWorkspace* workspace){
 
         ret = window_show(display, curr_window, workspace->x, workspace->y);
         ASSERT(ret == 0, "failed to show window\n");
+
+        if (curr_window != workspace->focused_window){
+            ret = window_unfocus(   display, 
+                                    root_window, 
+                                    curr_window, 
+                                    normal_pixel);
+            ASSERT(ret == 0, "unable to unfocus window.\n");
+        }else{
+            ret = window_focus( display, 
+                                curr_window, 
+                                focused_pixel);
+            ASSERT(ret == 0, "unable to focus window.\n");
+        }
+
     }
 
     return 0;

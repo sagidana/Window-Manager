@@ -37,7 +37,11 @@ int workspace_resize(   Display* display,
 int workspace_empty(WMWorkspace* workspace);
 
 int workspace_hide(Display* display, WMWorkspace* workspace);
-int workspace_show(Display* display, WMWorkspace* workspace);
+int workspace_show( WMWorkspace* workspace,
+                    Display* display, 
+                    Window root_window, 
+                    unsigned long normal_pixel,
+                    unsigned long focused_pixel);
 
 int workspace_add_window(WMWorkspace* workspace, WMWindow* window);
 int workspace_del_window(WMWorkspace* workspace, WMWindow* window);
