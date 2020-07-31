@@ -9,7 +9,7 @@ CC = cc
 LDFLAGS = ${LIBS}
 CFLAGS = -std=c99 -pedantic -Wall -Wno-deprecated-declarations -Os ${INCS}
 
-SRC = wm.c common.c workspace.c window.c list.c arrange.c arrange_default.c point.c monitor.c
+SRC = wm.c common.c workspace.c window.c list.c tree.c arrange.c point.c monitor.c arrange_tree.c arrange_default.c
 
 OBJ = ${SRC:.c=.o}
 
