@@ -322,7 +322,7 @@ static void (*event_handlers[LASTEvent]) (XEvent *) = {
 };
 
 int x_on_error(Display* display, XErrorEvent* e){
-    LOG("x_on_erro()\n");
+    LOG("x_on_error()\n");
 
     return 0;
 }

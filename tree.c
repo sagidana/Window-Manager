@@ -78,6 +78,24 @@ fail:
     return -1;
 }
 
+int tree_num_of_direct_children(Tree* element){
+    int num_of_children = 0;
+    if (element->children == NULL){
+        return 0;
+    }
+
+    Tree* head = element->children;
+    Tree* next = head;
+
+    do{
+        num_of_children++;
+
+        next = next->next;
+    }while(next != head);
+
+    return num_of_children;
+}
+
 // example to iterate thought the entire tree.
 int tree_foreach(Tree* node){
     // -----------------------------------

@@ -47,7 +47,7 @@ typedef struct{
 }ArrangeTreeWorkspaceState;
 
 ArrangeTreeState arrange_tree_state = {
-    .mode = ARRANGE_TREE_VERTICAL_MODE | ARRANGE_TREE_NESTED_MODE
+    .mode = ARRANGE_TREE_VERTICAL_MODE 
 };
 
 // ---------------------------------------------------------------------------------
@@ -77,6 +77,12 @@ ArrangeTreeWorkspaceState* create_workspace_context(){
     ArrangeTreeWorkspaceState* state = malloc(sizeof(ArrangeTreeWorkspaceState));
     ASSERT(state, "failed to allocat arrange_context. \n");
     memset(state, 0, sizeof(ArrangeTreeWorkspaceState));
+
+    // creating a "frame" root node.
+    state->root = create_tree_node(NULL);
+    ASSERT(state->root, "failed to create root node.\n");
+
+
 
     return state;
 fail:
@@ -208,28 +214,6 @@ int split_tree(TreeWindowNode* parent,
     tree_node_update(parent);
     return 0;
 
-    // // Now update the dimentions of the windows.
-    // if (ARRANGE_TREE_IS_MODE(ARRANGE_TREE_VERTICAL_MODE)){
-        // unsigned int new_width = (focused_window->width / 2) - GAP;
-
-        // focused_window->width = new_width;
-
-        // window->y = focused_window->y;
-        // window->height = focused_window->height;
-        // window->x = focused_window->x + focused_window->width + (2 * GAP);
-        // window->width = new_width;
-    // }else{
-        // unsigned int new_height = (focused_window->height / 2) - GAP;
-
-        // focused_window->height = new_height;
-
-        // window->x = focused_window->x;
-        // window->width = focused_window->width;
-        // window->y = focused_window->y + focused_window->height + (2 * GAP);
-        // window->height = new_height;
-    // }
-    // return 0;
-
 fail_on_tree_add:
     free(focused_node);
 fail:
@@ -238,22 +222,27 @@ fail:
 
 int add_children(TreeWindowNode* parent, 
                  TreeWindowNode* new_node){
+    ASSERT( (tree_add(&parent->node, &new_node->node) == 0), 
+            "failed to add new node to the parent.\n");
 
-    ASSERT(parent->node.children, "parent do not have children.\n");
+    // TODO: need to take into account resizes.
+    int num_of_children = tree_num_of_direct_children(&parent->node);
+    LOG("num_of_children: %d\n", num_of_children);
+    float precentage = 1.0 / ((float)num_of_children);
+
     Tree* head = parent->node.children;
     Tree* next = head;
-
-    ASSERT(tree_add(&parent->node, &new_node->node), "failed to add new node to the parent.\n");
-
     do{
         TreeWindowNode* current = (TreeWindowNode*)next;
 
-        // 
+        LOG("setting precentage to: %f\n", precentage);
+        tree_node_set_precentage(current, precentage);
 
         next = next->next;
     }while(next != head);
 
-    return 0;
+    return tree_node_update(parent);
+
 fail:
     return -1;
 }
@@ -268,6 +257,12 @@ int tree_on_new_window(  WMWorkspace* workspace,
     if (workspace->arrange_context == NULL){
         workspace->arrange_context = create_workspace_context();
         ASSERT(workspace->arrange_context, "failed to allocate arrange_context.\n");
+
+        tree_node_set_dimentions(   ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root,
+                                    0,
+                                    0,
+                                    workspace->width,
+                                    workspace->height);
     }
 
     // creating the node corresponding te the new window.
@@ -277,16 +272,11 @@ int tree_on_new_window(  WMWorkspace* workspace,
 
     // This is the first window
     if (focused_window == NULL){ 
-        ((ArrangeTreeWorkspaceState*) workspace->arrange_context)->root = new_node;
-
-        // setting the dimentions of the first window to be fullscreen.
-        tree_node_set_dimentions(   new_node,
-                                    0 + GAP,
-                                    0 + GAP,
-                                    workspace->width - (GAP * 2),
-                                    workspace->height - (GAP * 2));
-        tree_node_set_precentage(new_node, 1.0); // doesn't really matter for the root node.
-        tree_node_update(new_node);
+        // adding the first node directly to the root.
+        ASSERT_TO(  fail_on_find_tree_node, 
+                    (add_children(((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                  new_node) == 0), 
+                    "failed to add children.\n");
         return 0;
     }
 
@@ -305,7 +295,11 @@ int tree_on_new_window(  WMWorkspace* workspace,
         ASSERT_TO(  fail_on_find_tree_node, 
                     (split_tree(parent, new_node) == 0),
                     "failed to split tree.\n");
+
+        // we want to only nest one time after the user chooses vertical/horisontal splits.
+        ARRANGE_TREE_SET_NO_MODE(ARRANGE_TREE_NESTED_MODE);
     }else{  // adding the window to the parent layout.
+        parent = (TreeWindowNode*)parent->node.parent;
         ASSERT_TO(  fail_on_find_tree_node, 
                     (add_children(parent, new_node) == 0), 
                     "failed to add children.\n");
@@ -331,12 +325,51 @@ int tree_on_del_window(  WMWorkspace* workspace,
 
 int tree_on_horizontal(WMWorkspace* workspace){
     ARRANGE_TREE_SET_NO_MODE(ARRANGE_TREE_VERTICAL_MODE);
+
+    TreeWindowNode* parent = find_tree_node_by_window(( (ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                        workspace->focused_window);
+    ASSERT(parent, "Wasn't able to find tree node for the focused window.\n");
+
+    ARRANGE_TREE_SET_MODE(ARRANGE_TREE_NESTED_MODE);
+
+    parent->mode &= ~ARRANGE_TREE_VERTICAL_MODE;
+
+    // if (ARRANGE_TREE_IS_MODE(ARRANGE_TREE_NESTED_MODE)){
+        // parent->mode &= ~ARRANGE_TREE_VERTICAL_MODE;
+    // }else{
+        // parent = (TreeWindowNode*) parent->node.parent;
+        // parent->mode &= ~ARRANGE_TREE_VERTICAL_MODE;
+    // }
+
     return 0;
+
+fail:
+    return -1;
 }
+
 int tree_on_vertical(WMWorkspace* workspace){
     ARRANGE_TREE_SET_MODE(ARRANGE_TREE_VERTICAL_MODE);
+
+    TreeWindowNode* parent = find_tree_node_by_window(( (ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                        workspace->focused_window);
+    ASSERT(parent, "Wasn't able to find tree node for the focused window.\n");
+
+    ARRANGE_TREE_SET_MODE(ARRANGE_TREE_NESTED_MODE);
+
+    parent->mode |= ARRANGE_TREE_VERTICAL_MODE;
+    // if (ARRANGE_TREE_IS_MODE(ARRANGE_TREE_NESTED_MODE)){
+        // parent->mode |= ARRANGE_TREE_VERTICAL_MODE;
+    // }else{
+        // parent = (TreeWindowNode*) parent->node.parent;
+        // parent->mode |= ARRANGE_TREE_VERTICAL_MODE;
+    // }
+
     return 0;
+
+fail:
+    return -1;
 }
+
 int tree_on_fullscreen_toggle(WMWorkspace* workspace){
     return 0;
 }

@@ -14,5 +14,6 @@ typedef struct tree_t{
 void tree_init_tree(Tree* element);
 int tree_del(Tree* element);
 int tree_add(Tree* parent, Tree* element);
+int tree_num_of_direct_children(Tree* element);
 
 #endif
