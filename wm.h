@@ -104,10 +104,10 @@ static Key wm_keys[] = {
     // {MODKEY | Mod1Mask,     XK_L,           arrange,          {.ptr = NULL,     .i = 14} },
 
     // to resize
-    {MODKEY | ControlMask,  XK_H,           arrange,          {.ptr = NULL,     .i = 15} },
-    {MODKEY | ControlMask,  XK_J,           arrange,          {.ptr = NULL,     .i = 16} },
-    {MODKEY | ControlMask,  XK_K,           arrange,          {.ptr = NULL,     .i = 17} },
-    {MODKEY | ControlMask,  XK_L,           arrange,          {.ptr = NULL,     .i = 18} },
+    {MODKEY | Mod1Mask,  XK_H,           arrange,          {.ptr = NULL,     .i = 15} },
+    {MODKEY | Mod1Mask,  XK_J,           arrange,          {.ptr = NULL,     .i = 16} },
+    {MODKEY | Mod1Mask,  XK_K,           arrange,          {.ptr = NULL,     .i = 17} },
+    {MODKEY | Mod1Mask,  XK_L,           arrange,          {.ptr = NULL,     .i = 18} },
     // -------------------------------------------------------------------------------------
 
     {MODKEY,                XK_1,           switch_workspace, {.ptr = NULL,     .i = 1 } },
