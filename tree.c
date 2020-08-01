@@ -36,7 +36,9 @@ int tree_del(Tree* element){
     }
     
     // make sure the parent's reference is not the node we just removing
-    element->parent->children = prev; // randomly chose the prev
+    if (element->parent->children == element){
+        element->parent->children = next; 
+    }
 
     // reset its fields
     element->parent = NULL;

@@ -121,6 +121,12 @@ int tree_node_update(TreeWindowNode* node){
         node->window->width = node->width - (GAP * 2);
         node->window->height = node->height - (GAP * 2);
 
+        LOG("x: %d, y: %d, width: %d, height: %d\n", 
+                node->window->x,
+                node->window->y,
+                node->window->width,
+                node->window->height);
+
         return 0;
     }
 
@@ -274,6 +280,7 @@ int del_children(TreeWindowNode* node){
     do{
         TreeWindowNode* current = (TreeWindowNode*)next;
 
+        LOG("setting precentage: %f\n", precentage);
         tree_node_set_precentage(current, precentage);
 
         next = next->next;
@@ -360,9 +367,18 @@ int tree_on_del_window(  WMWorkspace* workspace,
                                                         workspace->focused_window);
     ASSERT(node, "Wasn't able to find tree node for the focused window.\n");
 
-    ASSERT((del_children(node) == 0), "wasn't able to delete node from tree.\n");
-
+    // we need to trim the tree fully, without a tree that has no children
+    TreeWindowNode* parent = (TreeWindowNode*)node->node.parent;
+    do{
+        ASSERT((del_children(node) == 0), "wasn't able to delete node from tree.\n");
+        if (parent->node.children != NULL){
+            break;
+        }
+        node = parent;
+        parent = (TreeWindowNode*)node->node.parent;
+    }while (node != ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root);
     return 0;
+
 fail:
     return -1;
 }
