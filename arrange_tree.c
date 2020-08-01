@@ -136,6 +136,7 @@ int tree_node_update(TreeWindowNode* node){
 
         // decide how to split
         if (node->mode & ARRANGE_TREE_VERTICAL_MODE){
+            // what about the resize scenario?
             int height = node->height * current->precentage;
 
             tree_node_set_dimentions(   current,
@@ -147,6 +148,7 @@ int tree_node_update(TreeWindowNode* node){
 
             last_y_position += height;
         }else{
+            // what about the resize scenario?
             int width = node->width * current->precentage;
 
             tree_node_set_dimentions(   current,
@@ -317,7 +319,7 @@ int tree_on_new_window(  WMWorkspace* workspace,
     }
 
     // NOTE: the find_tree_node_by_window function should always return a leaf tree node.
-    TreeWindowNode* parent = find_tree_node_by_window(( (ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+    TreeWindowNode* parent = find_tree_node_by_window(  ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
                                                         workspace->focused_window);
     ASSERT_TO(fail_on_find_tree_node, parent, "Wasn't able to find tree node for the focused window.\n");
 
@@ -434,42 +436,261 @@ int tree_on_move_right(WMWorkspace* workspace){
 }
 
 int tree_on_focus_left(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_left_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    workspace->focused_window = window; 
+
     return 0;
+fail:
+    return -1;
 }
 int tree_on_focus_down(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_down_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    workspace->focused_window = window; 
+
     return 0;
+fail:
+    return -1;
 }
 int tree_on_focus_up(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_up_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    workspace->focused_window = window; 
+
     return 0;
+fail:
+    return -1;
 }
 int tree_on_focus_right(WMWorkspace* workspace){
-    return 0;
-}
+    ASSERT(workspace->focused_window, "no focused window.\n");
 
-int tree_on_align_left(WMWorkspace* workspace){
+    WMWindow* window = workspace_get_right_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    workspace->focused_window = window; 
+
     return 0;
-}
-int tree_on_align_down(WMWorkspace* workspace){
-    return 0;
-}
-int tree_on_align_up(WMWorkspace* workspace){
-    return 0;
-}
-int tree_on_align_right(WMWorkspace* workspace){
-    return 0;
+fail:
+    return -1;
 }
 
 int tree_on_resize_left(WMWorkspace* workspace){
-    return 0;
+    ASSERT(workspace->focused_window, "there is no window to resize\n");
+
+    TreeWindowNode* node = find_tree_node_by_window(    ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                        workspace->focused_window);
+    ASSERT(node, "Wasn't able to find tree node for the focused window.\n");
+
+    // when trying to resize left and right and the current tree is not horisontal
+    // than we trying to expand beyond the tree boundries. 
+    // keep going up to find the closest parent that has horisontal mode
+    TreeWindowNode* parent = (TreeWindowNode*)node->node.parent;
+    do{
+        if (!(parent->mode & ARRANGE_TREE_VERTICAL_MODE)){
+            break;
+        }
+
+        node = parent;
+        parent = (TreeWindowNode*)parent->node.parent;
+    }while(parent != NULL);
+    ASSERT(parent, "Wasn't able to find closest parent with the required mode.\n");
+
+    // node is an only child. (point to itself)
+    if (node->node.next == (Tree*)node){
+        return 0; // nothing to do? BUG?
+    }
+
+    // rising the precentage to reflect the resize
+    int num_of_children = tree_num_of_direct_children(&parent->node);
+
+    float target_precentage = 0.05;
+    float surround_precentage = target_precentage / ((float) (num_of_children - 1)) * (-1);
+
+    Tree* head = parent->node.children;
+    Tree* next = head;
+    do{
+        TreeWindowNode* current = (TreeWindowNode*)next;
+
+        if (current == node){
+            LOG("updating precentage: %f\n", current->precentage + target_precentage);
+            tree_node_set_precentage(current, current->precentage + target_precentage);
+        }else{
+            LOG("updating precentage: %f\n", current->precentage + surround_precentage);
+            tree_node_set_precentage(current, current->precentage + surround_precentage);
+        }
+
+        next = next->next;
+    }while(next != head);
+
+    return tree_node_update(parent);
+fail:
+    return -1;
 }
 int tree_on_resize_down(WMWorkspace* workspace){
-    return 0;
+    ASSERT(workspace->focused_window, "there is no window to resize\n");
+
+    TreeWindowNode* node = find_tree_node_by_window(    ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                        workspace->focused_window);
+    ASSERT(node, "Wasn't able to find tree node for the focused window.\n");
+
+    // when trying to resize left and right and the current tree is not horisontal
+    // than we trying to expand beyond the tree boundries. 
+    // keep going up to find the closest parent that has horisontal mode
+    TreeWindowNode* parent = (TreeWindowNode*)node->node.parent;
+    do{
+        if ((parent->mode & ARRANGE_TREE_VERTICAL_MODE)){
+            break;
+        }
+
+        node = parent;
+        parent = (TreeWindowNode*)parent->node.parent;
+    }while(parent != NULL);
+    ASSERT(parent, "Wasn't able to find closest parent with the required mode.\n");
+
+    // node is an only child. (point to itself)
+    if (node->node.next == (Tree*)node){
+        return 0; // nothing to do? BUG?
+    }
+
+    // rising the precentage to reflect the resize
+    int num_of_children = tree_num_of_direct_children(&parent->node);
+
+    float target_precentage = 0.05;
+    float surround_precentage = target_precentage / ((float) (num_of_children - 1)) * (-1);
+
+    Tree* head = parent->node.children;
+    Tree* next = head;
+    do{
+        TreeWindowNode* current = (TreeWindowNode*)next;
+
+        if (current == node){
+            LOG("updating precentage: %f\n", current->precentage + target_precentage);
+            tree_node_set_precentage(current, current->precentage + target_precentage);
+        }else{
+            LOG("updating precentage: %f\n", current->precentage + surround_precentage);
+            tree_node_set_precentage(current, current->precentage + surround_precentage);
+        }
+
+        next = next->next;
+    }while(next != head);
+
+    return tree_node_update(parent);
+fail:
+    return -1;
 }
 int tree_on_resize_up(WMWorkspace* workspace){
-    return 0;
+    ASSERT(workspace->focused_window, "there is no window to resize\n");
+
+    TreeWindowNode* node = find_tree_node_by_window(    ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                        workspace->focused_window);
+    ASSERT(node, "Wasn't able to find tree node for the focused window.\n");
+
+    // when trying to resize left and right and the current tree is not horisontal
+    // than we trying to expand beyond the tree boundries. 
+    // keep going up to find the closest parent that has horisontal mode
+    TreeWindowNode* parent = (TreeWindowNode*)node->node.parent;
+    do{
+        if ((parent->mode & ARRANGE_TREE_VERTICAL_MODE)){
+            break;
+        }
+
+        node = parent;
+        parent = (TreeWindowNode*)parent->node.parent;
+    }while(parent != NULL);
+    ASSERT(parent, "Wasn't able to find closest parent with the required mode.\n");
+
+    // node is an only child. (point to itself)
+    if (node->node.next == (Tree*)node){
+        return 0; // nothing to do? BUG?
+    }
+
+    // rising the precentage to reflect the resize
+    int num_of_children = tree_num_of_direct_children(&parent->node);
+
+    float target_precentage = -0.05;
+    float surround_precentage = target_precentage / ((float) (num_of_children - 1)) * (-1);
+
+    Tree* head = parent->node.children;
+    Tree* next = head;
+    do{
+        TreeWindowNode* current = (TreeWindowNode*)next;
+
+        if (current == node){
+            LOG("updating precentage: %f\n", current->precentage + target_precentage);
+            tree_node_set_precentage(current, current->precentage + target_precentage);
+        }else{
+            LOG("updating precentage: %f\n", current->precentage + surround_precentage);
+            tree_node_set_precentage(current, current->precentage + surround_precentage);
+        }
+
+        next = next->next;
+    }while(next != head);
+
+    return tree_node_update(parent);
+fail:
+    return -1;
 }
 int tree_on_resize_right(WMWorkspace* workspace){
-    return 0;
+    ASSERT(workspace->focused_window, "there is no window to resize\n");
+
+    TreeWindowNode* node = find_tree_node_by_window(    ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                        workspace->focused_window);
+    ASSERT(node, "Wasn't able to find tree node for the focused window.\n");
+
+    // when trying to resize left and right and the current tree is not horisontal
+    // than we trying to expand beyond the tree boundries. 
+    // keep going up to find the closest parent that has horisontal mode
+    TreeWindowNode* parent = (TreeWindowNode*)node->node.parent;
+    do{
+        if (!(parent->mode & ARRANGE_TREE_VERTICAL_MODE)){
+            break;
+        }
+
+        node = parent;
+        parent = (TreeWindowNode*)parent->node.parent;
+    }while(parent != NULL);
+    ASSERT(parent, "Wasn't able to find closest parent with the required mode.\n");
+
+    // node is an only child. (point to itself)
+    if (node->node.next == (Tree*)node){
+        return 0; // nothing to do? BUG?
+    }
+
+    // rising the precentage to reflect the resize
+    int num_of_children = tree_num_of_direct_children(&parent->node);
+
+    float target_precentage = -0.05;
+    float surround_precentage = target_precentage / ((float) (num_of_children - 1)) * (-1);
+
+    Tree* head = parent->node.children;
+    Tree* next = head;
+    do{
+        TreeWindowNode* current = (TreeWindowNode*)next;
+
+        if (current == node){
+            LOG("updating precentage: %f\n", current->precentage + target_precentage);
+            tree_node_set_precentage(current, current->precentage + target_precentage);
+        }else{
+            LOG("updating precentage: %f\n", current->precentage + surround_precentage);
+            tree_node_set_precentage(current, current->precentage + surround_precentage);
+        }
+
+        next = next->next;
+    }while(next != head);
+
+    return tree_node_update(parent);
+fail:
+    return -1;
 }
 
 int (*tree_event_handlers[30]) (WMWorkspace *) = {
@@ -487,11 +708,6 @@ int (*tree_event_handlers[30]) (WMWorkspace *) = {
     [8] = tree_on_focus_down,
     [9] = tree_on_focus_up,
     [10] = tree_on_focus_right,
-
-    [11] = tree_on_align_left,
-    [12] = tree_on_align_down,
-    [13] = tree_on_align_up,
-    [14] = tree_on_align_right,
 
     [15] = tree_on_resize_left,
     [16] = tree_on_resize_down,

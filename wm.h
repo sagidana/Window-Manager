@@ -97,11 +97,11 @@ static Key wm_keys[] = {
     {MODKEY,                XK_K,           arrange,          {.ptr = NULL,     .i = 9} },
     {MODKEY,                XK_L,           arrange,          {.ptr = NULL,     .i = 10} },
 
-    // for alignment
-    {MODKEY | Mod1Mask,     XK_H,           arrange,          {.ptr = NULL,     .i = 11} },
-    {MODKEY | Mod1Mask,     XK_J,           arrange,          {.ptr = NULL,     .i = 12} },
-    {MODKEY | Mod1Mask,     XK_K,           arrange,          {.ptr = NULL,     .i = 13} },
-    {MODKEY | Mod1Mask,     XK_L,           arrange,          {.ptr = NULL,     .i = 14} },
+    // // for alignment (for default arrange only)
+    // {MODKEY | Mod1Mask,     XK_H,           arrange,          {.ptr = NULL,     .i = 11} },
+    // {MODKEY | Mod1Mask,     XK_J,           arrange,          {.ptr = NULL,     .i = 12} },
+    // {MODKEY | Mod1Mask,     XK_K,           arrange,          {.ptr = NULL,     .i = 13} },
+    // {MODKEY | Mod1Mask,     XK_L,           arrange,          {.ptr = NULL,     .i = 14} },
 
     // to resize
     {MODKEY | ControlMask,  XK_H,           arrange,          {.ptr = NULL,     .i = 15} },
