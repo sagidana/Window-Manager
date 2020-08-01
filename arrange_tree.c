@@ -439,16 +439,92 @@ int tree_on_fullscreen_toggle(WMWorkspace* workspace){
 }
 
 int tree_on_move_left(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_left_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    TreeWindowNode* src = find_tree_node_by_window( ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                    workspace->focused_window);
+    ASSERT(src, "failed to find src tree node.\n");
+    TreeWindowNode* dst = find_tree_node_by_window( ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                    window);
+    ASSERT(dst, "failed to find dst tree node.\n");
+
+    src->window = window;
+    dst->window = workspace->focused_window;
+
+    tree_node_update(((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root);
+
     return 0;
+fail:
+    return -1;
 }
 int tree_on_move_down(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_down_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    TreeWindowNode* src = find_tree_node_by_window( ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                    workspace->focused_window);
+    ASSERT(src, "failed to find src tree node.\n");
+    TreeWindowNode* dst = find_tree_node_by_window( ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                    window);
+    ASSERT(dst, "failed to find dst tree node.\n");
+
+    src->window = window;
+    dst->window = workspace->focused_window;
+
+    tree_node_update(((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root);
+
     return 0;
+fail:
+    return -1;
 }
 int tree_on_move_up(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_up_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    TreeWindowNode* src = find_tree_node_by_window( ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                    workspace->focused_window);
+    ASSERT(src, "failed to find src tree node.\n");
+    TreeWindowNode* dst = find_tree_node_by_window( ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                    window);
+    ASSERT(dst, "failed to find dst tree node.\n");
+
+    src->window = window;
+    dst->window = workspace->focused_window;
+
+    tree_node_update(((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root);
+
     return 0;
+fail:
+    return -1;
 }
 int tree_on_move_right(WMWorkspace* workspace){
+    ASSERT(workspace->focused_window, "no focused window.\n");
+
+    WMWindow* window = workspace_get_right_window(workspace);
+    ASSERT(window, "no window found to focus.\n");
+
+    TreeWindowNode* src = find_tree_node_by_window( ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                    workspace->focused_window);
+    ASSERT(src, "failed to find src tree node.\n");
+    TreeWindowNode* dst = find_tree_node_by_window( ((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root, 
+                                                    window);
+    ASSERT(dst, "failed to find dst tree node.\n");
+
+    src->window = window;
+    dst->window = workspace->focused_window;
+
+    tree_node_update(((ArrangeTreeWorkspaceState*)workspace->arrange_context)->root);
+
     return 0;
+fail:
+    return -1;
 }
 
 int tree_on_focus_left(WMWorkspace* workspace){
